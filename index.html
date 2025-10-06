@@ -359,12 +359,20 @@
         return;
       }
 
+      // ボタンを無効化して送信中表示
+      const submitBtn = document.getElementById('submitBtn');
+      const originalText = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner"></span> 送信中...';
+      submitBtn.style.background = '#9ca3af'; // グレーに変更
+
       const reader = new FileReader();
       reader.readAsDataURL(audioBlob);
       
       reader.onloadend = async () => {
         try {
-          await fetch(GAS_URL, {
+          // 最低1秒は送信中表示を見せる
+          const sendPromise = fetch(GAS_URL, {
             method: 'POST',
             mode: 'no-cors',
             body: JSON.stringify({
@@ -373,6 +381,9 @@
               day: selectedDay,
             }),
           });
+          
+          const delayPromise = new Promise(resolve => setTimeout(resolve, 1000));
+          await Promise.all([sendPromise, delayPromise]);
 
           alert(`✨ ${studentName}さんの${selectedDay}日目の音読を送信しました！`);
           
@@ -386,6 +397,10 @@
           updateHeader();
         } catch (err) {
           alert('送信に失敗しました');
+          // エラー時はボタンを元に戻す
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+          submitBtn.style.background = '';
         }
       };
     }
