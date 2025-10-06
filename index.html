@@ -206,7 +206,7 @@
       <button id="recordBtn" class="record-btn ready" onclick="toggleRecording()">🎤</button>
       <p id="recordStatus" style="text-align: center; color: #6b7280; margin-bottom: 16px;">マイクボタンを押して録音開始</p>
       <audio id="audioPlayer" controls style="width: 100%; display: none; margin-bottom: 16px;"></audio>
-      <button onclick="submitRecording()" class="btn btn-primary">✨ Done! コーチに送信</button>
+                    <button onclick="submitRecording(this)" class="btn btn-primary">✨ Done! コーチに送信</button>
       <button onclick="closeRecord()" class="btn btn-secondary">戻る</button>
     </div>
   </div>
@@ -223,7 +223,7 @@
   </div>
 
   <script>
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycby554PYVIqdvq9dMm2dbwy3GNu_2Z1AGkos6Nr_vSorou3MgqudnYKBDZnotKU2WjrV/exec';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbx6iGilAJCTlDb0-0v-Xh597PJ-IjTFHYJueZ0MkdwHMzdWM9krUAe3d8oiCya3ZCNP/exec';
     
     let mediaRecorder = null;
     let audioChunks = [];
@@ -347,7 +347,7 @@
       }
     }
 
-    async function submitRecording() {
+    async function submitRecording(doneBtn) {
       if (!studentName) {
         alert('設定から名前を入力してください');
         showSettings();
@@ -360,18 +360,16 @@
       }
 
       // ボタンを無効化して送信中表示
-      const submitBtn = document.getElementById('submitBtn');
-      const originalText = submitBtn.innerHTML;
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span class="spinner"></span> 送信中...';
-      submitBtn.style.background = '#9ca3af'; // グレーに変更
+      const originalText = doneBtn.innerHTML;
+      doneBtn.disabled = true;
+      doneBtn.innerHTML = '<span class="spinner"></span> 送信中...';
+      doneBtn.style.background = '#9ca3af';
 
       const reader = new FileReader();
       reader.readAsDataURL(audioBlob);
       
       reader.onloadend = async () => {
         try {
-          // 最低1秒は送信中表示を見せる
           const sendPromise = fetch(GAS_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -397,10 +395,9 @@
           updateHeader();
         } catch (err) {
           alert('送信に失敗しました');
-          // エラー時はボタンを元に戻す
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = originalText;
-          submitBtn.style.background = '';
+          doneBtn.disabled = false;
+          doneBtn.innerHTML = originalText;
+          doneBtn.style.background = '';
         }
       };
     }
