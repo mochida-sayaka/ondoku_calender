@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>音読カレンダー 📚</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 50%, #bfdbfe 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    .header {
+      background: white;
+      border-radius: 24px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+      margin-bottom: 24px;
+    }
+    .title {
+      font-size: 32px;
+      font-weight: bold;
+      background: linear-gradient(to right, #9333ea, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+    .calendar {
+      background: white;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 12px;
+    }
+    .day {
+      aspect-ratio: 1;
+      border: none;
+      border-radius: 16px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .day:hover:not(:disabled) { transform: scale(1.1); }
+    .day.today {
+      background: linear-gradient(135deg, #fcd34d, #fb923c);
+      color: white;
+      animation: pulse 2s infinite;
+    }
+    .day.completed {
+      background: linear-gradient(135deg, #4ade80, #10b981);
+      color: white;
+    }
+    .day.past {
+      background: linear-gradient(135deg, #fbcfe8, #e9d5ff);
+      color: #374151;
+    }
+    .day:disabled {
+      background: #f3f4f6;
+      color: #9ca3af;
+      cursor: not-allowed;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal.show { display: flex; }
+    .modal-content {
+      background: white;
+      border-radius: 24px;
+      padding: 32px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    }
+    .btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+    .btn-primary {
+      background: linear-gradient(to right, #4ade80, #10b981);
+      color: white;
+    }
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #374151;
+    }
+    .record-btn {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: none;
+      font-size: 48px;
+      cursor: pointer;
+      margin: 24px auto;
+      display: block;
+      transition: transform 0.2s;
+    }
+    .record-btn:hover { transform: scale(1.1); }
+    .record-btn.recording {
+      background: #4b5563;
+      animation: pulse 1s infinite;
+    }
+    .record-btn.ready {
+      background: linear-gradient(135deg, #f87171, #f472b6);
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      font-size: 16px;
+      margin-top: 8px;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="title">📅 音読カレンダー ⭐</div>
+      <div id="student-name"></div>
+      <div id="stats"></div>
+      <button onclick="showSettings()" class="btn btn-secondary" style="width: auto; padding: 8px 24px; margin-top: 12px;">⚙️ 設定</button>
+    </div>
+    
+    <div class="calendar">
+      <div class="grid" id="calendar"></div>
+    </div>
+  </div>
+
+  <!-- 録音モーダル -->
+  <div id="recordModal" class="modal">
+    <div class="modal-content">
+      <h2 style="text-align: center; margin-bottom: 24px;"><span id="dayNumber"></span>日目の音読</h2>
+      <button id="recordBtn" class="record-btn ready" onclick="toggleRecording()">🎤</button>
+      <p id="recordStatus" style="text-align: center; color: #6b7280; margin-bottom: 16px;">マイクボタンを押して録音開始</p>
+      <audio id="audioPlayer" controls style="width: 100%; display: none; margin-bottom: 16px;"></audio>
+      <button onclick="submitRecording()" class="btn btn-primary">✨ Done! コーチに送信</button>
+      <button onclick="closeRecord()" class="btn btn-secondary">戻る</button>
+    </div>
+  </div>
+
+  <!-- 設定モーダル -->
+  <div id="settingsModal" class="modal">
+    <div class="modal-content">
+      <h2 style="text-align: center; margin-bottom: 24px;">⚙️ 設定</h2>
+      <label style="display: block; font-weight: 600; margin-bottom: 8px;">あなたの名前</label>
+      <input type="text" id="nameInput" placeholder="例: 田中太郎">
+      <button onclick="saveSettings()" class="btn btn-primary">保存</button>
+      <button onclick="closeSettings()" class="btn btn-secondary">キャンセル</button>
+    </div>
+  </div>
+
+  <script>
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbx6iGilAJCTlDb0-0v-Xh597PJ-IjTFHYJueZ0MkdwHMzdWM9krUAe3d8oiCya3ZCNP/exec';
+    
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let audioBlob = null;
+    let isRecording = false;
+    let selectedDay = null;
+    let completedDays = JSON.parse(localStorage.getItem('completedDays') || '[]');
+    let studentName = localStorage.getItem('studentName') || '';
+
+    const today = new Date();
+    const currentDay = today.getDate();
+    const currentMonth = today.getMonth();
+    const daysInMonth = new Date(today.getFullYear(), currentMonth + 1, 0).getDate();
+
+    function init() {
+      renderCalendar();
+      updateHeader();
+    }
+
+    function updateHeader() {
+      document.getElementById('student-name').innerHTML = studentName ? 
+        `<div style="font-size: 18px; font-weight: 600; color: #9333ea; margin: 8px 0;">${studentName}さんの記録</div>` : '';
+      document.getElementById('stats').innerHTML = `
+        <div style="font-size: 18px; font-weight: bold; color: #9333ea; margin-top: 8px;">
+          🏆 完了日数: ${completedDays.length} / ${daysInMonth}日
+        </div>
+      `;
+    }
+
+    function renderCalendar() {
+      const calendar = document.getElementById('calendar');
+      calendar.innerHTML = '';
+      
+      for (let day = 1; day <= daysInMonth; day++) {
+        const btn = document.createElement('button');
+        btn.className = 'day';
+        btn.textContent = day;
+        
+        if (completedDays.includes(day)) {
+          btn.className += ' completed';
+          btn.innerHTML = day + '<br>✓';
+        } else if (day === currentDay) {
+          btn.className += ' today';
+          btn.innerHTML = day + '<br>🌟';
+        } else if (day < currentDay) {
+          btn.className += ' past';
+        } else {
+          btn.disabled = true;
+        }
+        
+        btn.onclick = () => openRecord(day);
+        calendar.appendChild(btn);
+      }
+    }
+
+    function openRecord(day) {
+      selectedDay = day;
+      document.getElementById('dayNumber').textContent = day;
+      document.getElementById('recordModal').classList.add('show');
+      document.getElementById('audioPlayer').style.display = 'none';
+    }
+
+    function closeRecord() {
+      document.getElementById('recordModal').classList.remove('show');
+      if (isRecording) toggleRecording();
+      audioBlob = null;
+      audioChunks = [];
+    }
+
+    async function toggleRecording() {
+      const btn = document.getElementById('recordBtn');
+      const status = document.getElementById('recordStatus');
+      
+      if (!isRecording) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          mediaRecorder = new MediaRecorder(stream);
+          audioChunks = [];
+          
+          mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+          mediaRecorder.onstop = () => {
+            audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            const url = URL.createObjectURL(audioBlob);
+            const player = document.getElementById('audioPlayer');
+            player.src = url;
+            player.style.display = 'block';
+            stream.getTracks().forEach(track => track.stop());
+          };
+          
+          mediaRecorder.start();
+          isRecording = true;
+          btn.textContent = '⏹️';
+          btn.className = 'record-btn recording';
+          status.textContent = '録音中... もう一度押して停止';
+        } catch (err) {
+          alert('マイクへのアクセスが必要です');
+        }
+      } else {
+        mediaRecorder.stop();
+        isRecording = false;
+        btn.textContent = '🎤';
+        btn.className = 'record-btn ready';
+        status.textContent = '録音完了！再生して確認できます';
+      }
+    }
+
+    async function submitRecording() {
+      if (!studentName) {
+        alert('設定から名前を入力してください');
+        showSettings();
+        return;
+      }
+
+      if (!audioBlob) {
+        alert('録音してください');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.readAsDataURL(audioBlob);
+      
+      reader.onloadend = async () => {
+        try {
+          await fetch(GAS_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify({
+              audioData: reader.result,
+              studentName: studentName,
+              day: selectedDay,
+            }),
+          });
+
+          alert(`✨ ${studentName}さんの${selectedDay}日目の音読を送信しました！`);
+          
+          if (!completedDays.includes(selectedDay)) {
+            completedDays.push(selectedDay);
+            localStorage.setItem('completedDays', JSON.stringify(completedDays));
+          }
+          
+          closeRecord();
+          renderCalendar();
+          updateHeader();
+        } catch (err) {
+          alert('送信に失敗しました');
+        }
+      };
+    }
+
+    function showSettings() {
+      document.getElementById('nameInput').value = studentName;
+      document.getElementById('settingsModal').classList.add('show');
+    }
+
+    function closeSettings() {
+      document.getElementById('settingsModal').classList.remove('show');
+    }
+
+    function saveSettings() {
+      const name = document.getElementById('nameInput').value.trim();
+      if (name) {
+        studentName = name;
+        localStorage.setItem('studentName', name);
+        updateHeader();
+        closeSettings();
+        alert('設定を保存しました！');
+      } else {
+        alert('名前を入力してください');
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
