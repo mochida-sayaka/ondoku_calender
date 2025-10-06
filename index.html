@@ -199,19 +199,17 @@
     </div>
   </div>
 
-  <!-- 録音モーダル -->
   <div id="recordModal" class="modal">
     <div class="modal-content">
       <h2 style="text-align: center; margin-bottom: 24px;"><span id="dayNumber"></span>日目の音読</h2>
       <button id="recordBtn" class="record-btn ready" onclick="toggleRecording()">🎤</button>
       <p id="recordStatus" style="text-align: center; color: #6b7280; margin-bottom: 16px;">マイクボタンを押して録音開始</p>
       <audio id="audioPlayer" controls style="width: 100%; display: none; margin-bottom: 16px;"></audio>
-                    <button onclick="submitRecording(this)" class="btn btn-primary">✨ Done! コーチに送信</button>
+      <button onclick="submitRecording(this)" class="btn btn-primary">✨ Done! コーチに送信</button>
       <button onclick="closeRecord()" class="btn btn-secondary">戻る</button>
     </div>
   </div>
 
-  <!-- 設定モーダル -->
   <div id="settingsModal" class="modal">
     <div class="modal-content">
       <h2 style="text-align: center; margin-bottom: 24px;">⚙️ 設定</h2>
@@ -257,19 +255,15 @@
       const calendar = document.getElementById('calendar');
       calendar.innerHTML = '';
       
-      // 月の1日が何曜日か取得（0=日曜、1=月曜...）
       const firstDay = new Date(today.getFullYear(), currentMonth, 1).getDay();
-      // 月曜始まりに調整（日曜=6, 月曜=0になるように）
       const firstDayAdjusted = firstDay === 0 ? 6 : firstDay - 1;
       
-      // 空のセルを追加（月曜始まりに合わせる）
       for (let i = 0; i < firstDayAdjusted; i++) {
         const empty = document.createElement('div');
         empty.className = 'empty-day';
         calendar.appendChild(empty);
       }
       
-      // 日付を追加
       for (let day = 1; day <= daysInMonth; day++) {
         const btn = document.createElement('button');
         btn.className = 'day';
@@ -359,7 +353,6 @@
         return;
       }
 
-      // ボタンを無効化して送信中表示
       const originalText = doneBtn.innerHTML;
       doneBtn.disabled = true;
       doneBtn.innerHTML = '<span class="spinner"></span> 送信中...';
@@ -397,7 +390,7 @@
           alert('送信に失敗しました');
           doneBtn.disabled = false;
           doneBtn.innerHTML = originalText;
-          doneBtn.style.background = '';
+          doneBtn.removeAttribute('style'); // ← ここを修正！
         }
       };
     }
