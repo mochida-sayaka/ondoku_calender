@@ -117,6 +117,27 @@
     .btn-primary {
       background: linear-gradient(to right, #4ade80, #10b981);
       color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+    .btn-primary:active:not(:disabled) {
+      transform: scale(0.95);
+    }
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
     .btn-secondary {
       background: #e5e7eb;
