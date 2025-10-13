@@ -131,6 +131,14 @@ input[type="text"]:focus {
   border-color: #8b5cf6;
 }
 
+/* ヒントテキスト */
+.hint-text {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
 /* 選択グリッド */
 .mood-grid,
 .level-grid,

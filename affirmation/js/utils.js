@@ -79,6 +79,63 @@ function hideLoading(button) {
   button.innerHTML = button.dataset.originalText || button.innerHTML;
 }
 
+// レベル別の使用済みID管理
+function getUsedIdsByLevel(level) {
+  const allUsed = JSON.parse(localStorage.getItem('usedAffirmationIds') || '{}');
+  return allUsed[level] || [];
+}
+
+function markAsUsed(id, level) {
+  const allUsed = JSON.parse(localStorage.getItem('usedAffirmationIds') || '{}');
+  if (!allUsed[level]) allUsed[level] = [];
+  if (!allUsed[level].includes(id)) {
+    allUsed[level].push(id);
+  }
+  localStorage.setItem('usedAffirmationIds', JSON.stringify(allUsed));
+}
+
+function resetUsedIds(level = null) {
+  if (level) {
+    // 特定のレベルのみリセット
+    const allUsed = JSON.parse(localStorage.getItem('usedAffirmationIds') || '{}');
+    delete allUsed[level];
+    localStorage.setItem('usedAffirmationIds', JSON.stringify(allUsed));
+  } else {
+    // 全レベルリセット
+    localStorage.removeItem('usedAffirmationIds');
+  }
+}
+
+// レベルコンプリート確認
+function checkLevelCompletion(level) {
+  const totalByLevel = { easy: 365, intermediate: 360, advanced: 285 };
+  const usedIds = getUsedIdsByLevel(level);
+  
+  return {
+    completed: usedIds.length >= totalByLevel[level],
+    justCompleted: usedIds.length === totalByLevel[level],
+    progress: usedIds.length,
+    total: totalByLevel[level],
+    percentage: Math.round((usedIds.length / totalByLevel[level]) * 100)
+  };
+}
+
+// 全レベルコンプリート確認
+function checkAllLevelsCompletion() {
+  const easyComplete = checkLevelCompletion('easy');
+  const intermediateComplete = checkLevelCompletion('intermediate');
+  const advancedComplete = checkLevelCompletion('advanced');
+  
+  return {
+    allCompleted: easyComplete.completed && intermediateComplete.completed && advancedComplete.completed,
+    easy: easyComplete,
+    intermediate: intermediateComplete,
+    advanced: advancedComplete,
+    totalProgress: easyComplete.progress + intermediateComplete.progress + advancedComplete.progress,
+    totalAffirmations: 1095
+  };
+}
+
 // グローバルに公開
 window.utils = {
   formatDate,
@@ -89,5 +146,10 @@ window.utils = {
   formatDuration,
   fileToBase64,
   showLoading,
-  hideLoading
+  hideLoading,
+  getUsedIdsByLevel,
+  markAsUsed,
+  resetUsedIds,
+  checkLevelCompletion,
+  checkAllLevelsCompletion
 };

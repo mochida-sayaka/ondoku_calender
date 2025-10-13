@@ -179,8 +179,149 @@ function showCalendar() {
   document.getElementById('affirmationScreen').style.display = 'none';
   document.getElementById('statsScreen').style.display = 'none';
   
+  // レベルコンプリート確認
+  const justCompletedLevel = localStorage.getItem('justCompletedLevel');
+  if (justCompletedLevel) {
+    localStorage.removeItem('justCompletedLevel');
+    setTimeout(() => showLevelCompletionModal(justCompletedLevel), 500);
+  }
+  
   window.renderCalendar();
 }
+
+// レベルコンプリートモーダルを表示
+function showLevelCompletionModal(level) {
+  const levelNames = {
+    easy: '初級',
+    intermediate: '中級',
+    advanced: '上級'
+  };
+  
+  const levelIcons = {
+    easy: '🌟',
+    intermediate: '🚀',
+    advanced: '💎'
+  };
+  
+  const levelInfo = {
+    easy: { name: '英検5級/4級', total: 365, desc: '基本文法マスター' },
+    intermediate: { name: '英検3級', total: 360, desc: '複雑な文法マスター' },
+    advanced: { name: '英検準2級/2級', total: 285, desc: '高度な表現マスター' }
+  };
+  
+  const info = levelInfo[level];
+  const completion = window.utils.checkAllLevelsCompletion();
+  
+  // 全レベルコンプリートチェック
+  if (completion.allCompleted) {
+    showAllLevelsCompletionModal();
+    return;
+  }
+  
+  // モーダルHTML
+  const modalHTML = `
+    <div class="completion-modal-overlay" id="completionModal">
+      <div class="completion-modal">
+        <div class="completion-icon">${levelIcons[level]}</div>
+        <h2>${levelNames[level]}コンプリート！</h2>
+        <p class="completion-subtitle">${info.total}文すべて完了しました</p>
+        <div class="completion-info">
+          <div class="completion-badge">
+            <div class="badge-icon">🎓</div>
+            <div class="badge-text">${info.name}レベル</div>
+          </div>
+          <div class="completion-badge">
+            <div class="badge-icon">📚</div>
+            <div class="badge-text">${info.desc}</div>
+          </div>
+        </div>
+        <p class="completion-message">素晴らしい成果です！</p>
+        <div class="completion-buttons">
+          <button class="modal-btn secondary" onclick="continueCurrentLevel('${level}')">
+            ${levelNames[level]}を続ける
+          </button>
+          <button class="modal-btn primary" onclick="changeLevel()">
+            レベルを変更
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+// 全レベルコンプリートモーダル
+function showAllLevelsCompletionModal() {
+  const modalHTML = `
+    <div class="completion-modal-overlay" id="completionModal">
+      <div class="completion-modal all-complete">
+        <div class="completion-icon">👑</div>
+        <h2>全レベルコンプリート！</h2>
+        <p class="completion-subtitle">1,095文すべて完了しました</p>
+        <div class="completion-info">
+          <div class="completion-badge">
+            <div class="badge-icon">🌟</div>
+            <div class="badge-text">初級: 365文</div>
+          </div>
+          <div class="completion-badge">
+            <div class="badge-icon">🚀</div>
+            <div class="badge-text">中級: 360文</div>
+          </div>
+          <div class="completion-badge">
+            <div class="badge-icon">💎</div>
+            <div class="badge-text">上級: 285文</div>
+          </div>
+        </div>
+        <p class="completion-message">あなたは真のマスターです！</p>
+        <div class="completion-buttons">
+          <button class="modal-btn secondary" onclick="resetAllProgress()">
+            最初からやり直す
+          </button>
+          <button class="modal-btn primary" onclick="closeCompletionModal()">
+            好きなレベルを選ぶ
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+// モーダルを閉じる
+function closeCompletionModal() {
+  const modal = document.getElementById('completionModal');
+  if (modal) modal.remove();
+}
+
+// 現在のレベルを続ける
+function continueCurrentLevel(level) {
+  closeCompletionModal();
+  // そのまま続行
+}
+
+// レベルを変更
+function changeLevel() {
+  closeCompletionModal();
+  showSetupScreen();
+}
+
+// 全進捗をリセット
+function resetAllProgress() {
+  if (confirm('本当に全ての進捗をリセットしますか？\nこの操作は取り消せません。')) {
+    window.utils.resetUsedIds();
+    closeCompletionModal();
+    showSetupScreen();
+    alert('✨ 進捗をリセットしました！新しい旅の始まりです。');
+  }
+}
+
+// グローバルに公開
+window.continueCurrentLevel = continueCurrentLevel;
+window.changeLevel = changeLevel;
+window.resetAllProgress = resetAllProgress;
+window.closeCompletionModal = closeCompletionModal;
 
 function showStatsScreen() {
   document.getElementById('setupScreen').style.display = 'none';

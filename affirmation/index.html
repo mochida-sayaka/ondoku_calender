@@ -4,809 +4,168 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🔮 アファメーションカレンダー</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
-      color: #333;
-    }
-    
-    .container {
-      max-width: 500px;
-      margin: 0 auto;
-    }
-    
-    .card {
-      background: white;
-      border-radius: 20px;
-      padding: 30px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      margin-bottom: 20px;
-    }
-    
-    h1 {
-      text-align: center;
-      color: white;
-      margin-bottom: 20px;
-      font-size: 28px;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    }
-    
-    h2 {
-      color: #667eea;
-      margin-bottom: 20px;
-      font-size: 22px;
-    }
-    
-    .setting-section {
-      margin-bottom: 25px;
-    }
-    
-    .setting-label {
-      font-weight: 600;
-      margin-bottom: 12px;
-      color: #555;
-      font-size: 16px;
-    }
-    
-    .mood-options, .level-options, .count-options {
-      display: grid;
-      gap: 10px;
-    }
-    
-    .mood-options {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .option-btn {
-      padding: 15px;
-      border: 2px solid #e0e0e0;
-      border-radius: 12px;
-      background: white;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-size: 16px;
-      text-align: center;
-    }
-    
-    .option-btn:hover {
-      border-color: #667eea;
-      transform: translateY(-2px);
-    }
-    
-    .option-btn.selected {
-      border-color: #667eea;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      font-weight: 600;
-    }
-    
-    .big-button {
-      width: 100%;
-      padding: 18px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 18px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      margin-top: 10px;
-    }
-    
-    .big-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-    }
-    
-    .week-info {
-      text-align: center;
-      color: #666;
-      margin-bottom: 20px;
-      font-size: 14px;
-    }
-    
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-    
-    .day-cell {
-      aspect-ratio: 1;
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.3s;
-      border: 2px solid #e0e0e0;
-      background: white;
-    }
-    
-    .day-cell.today {
-      border-color: #667eea;
-      background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
-    }
-    
-    .day-cell.completed {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border-color: #667eea;
-    }
-    
-    .day-cell.future {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    
-    .day-cell:hover:not(.future) {
-      transform: scale(1.05);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    
-    .day-label {
-      font-size: 11px;
-      margin-bottom: 4px;
-      font-weight: 600;
-    }
-    
-    .day-icon {
-      font-size: 24px;
-    }
-    
-    .affirmation-card {
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      border-radius: 16px;
-      padding: 25px;
-      margin-bottom: 15px;
-      min-height: 150px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    
-    .affirmation-text {
-      font-size: 22px;
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 15px;
-      line-height: 1.5;
-      text-align: center;
-    }
-    
-    .affirmation-japanese {
-      font-size: 16px;
-      color: #666;
-      text-align: center;
-      display: none;
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid rgba(0,0,0,0.1);
-    }
-    
-    .affirmation-japanese.show {
-      display: block;
-    }
-    
-    .toggle-japanese {
-      text-align: center;
-      color: #667eea;
-      cursor: pointer;
-      font-size: 14px;
-      margin-bottom: 15px;
-    }
-    
-    .button-group {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 15px;
-    }
-    
-    .action-btn {
-      padding: 12px;
-      border-radius: 10px;
-      border: none;
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-weight: 600;
-    }
-    
-    .play-btn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-    
-    .record-btn {
-      background: white;
-      border: 2px solid #667eea;
-      color: #667eea;
-    }
-    
-    .record-btn.recording {
-      background: #ff4757;
-      color: white;
-      border-color: #ff4757;
-    }
-    
-    .action-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-    
-    .audio-player {
-      width: 100%;
-      margin-top: 10px;
-      display: none;
-    }
-    
-    .audio-player.show {
-      display: block;
-    }
-    
-    .done-btn {
-      width: 100%;
-      padding: 15px;
-      background: linear-gradient(135deg, #5f27cd 0%, #341f97 100%);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 15px;
-    }
-    
-    .hidden {
-      display: none;
-    }
-    
-    .spinner {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255,255,255,0.3);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    input {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid #ddd;
-      border-radius: 12px;
-      font-size: 16px;
-    }
-    
-    @media (max-width: 400px) {
-      .container {
-        padding: 10px;
-      }
-      
-      .card {
-        padding: 20px;
-      }
-      
-      .affirmation-text {
-        font-size: 18px;
-      }
-    }
-  </style>
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/screens.css">
+  <link rel="stylesheet" href="css/stats.css">
 </head>
 <body>
   <div class="container">
-    <h1>🔮 アファメーションカレンダー</h1>
-    
-    <div id="settingScreen" class="card">
-      <h2>今週の設定</h2>
+    <!-- 設定画面 -->
+    <div id="setupScreen" class="screen">
+      <h1>🔮 アファメーションカレンダー</h1>
+      <p class="subtitle">あなたの心に響く言葉を、毎日音読しましょう</p>
       
-      <div class="setting-section">
-        <div class="setting-label">あなたの名前 👤</div>
-        <input type="text" id="quickNameInput" placeholder="例: 田中太郎">
-      </div>
-      
-      <div class="setting-section">
-        <div class="setting-label">今週の気分は？ 🌟</div>
-        <div class="mood-options">
-          <button class="option-btn" data-mood="gentle">
-            🌸 Gentle<br><small>優しく</small>
-          </button>
-          <button class="option-btn" data-mood="uplifting">
-            🚀 Uplifting<br><small>前向きに</small>
-          </button>
-          <button class="option-btn" data-mood="empowering">
-            💪 Empowering<br><small>力強く</small>
-          </button>
-          <button class="option-btn" data-mood="balanced">
-            🌈 Balanced<br><small>ミックス</small>
-          </button>
+      <div class="setup-card">
+        <div class="form-group">
+          <label>あなたの名前</label>
+          <input type="text" id="studentNameInput" placeholder="例：田中太郎">
         </div>
-      </div>
-      
-      <div class="setting-section">
-        <div class="setting-label">難易度 📊</div>
-        <div class="level-options">
-          <button class="option-btn" data-level="easy">
-            初級<br><small>英検5級/4級</small>
-          </button>
-          <button class="option-btn" data-level="intermediate">
-            中級<br><small>英検3級</small>
-          </button>
-          <button class="option-btn" data-level="advanced">
-            上級<br><small>英検準2級/2級</small>
-          </button>
+
+        <div class="form-group">
+          <label>今週の気分は？</label>
+          <div class="mood-grid" id="moodGrid">
+            <button class="mood-btn" data-mood="gentle">
+              <span class="mood-icon">🌸</span>
+              <span class="mood-label">Gentle</span>
+              <span class="mood-desc">優しく</span>
+            </button>
+            <button class="mood-btn" data-mood="uplifting">
+              <span class="mood-icon">🚀</span>
+              <span class="mood-label">Uplifting</span>
+              <span class="mood-desc">前向きに</span>
+            </button>
+            <button class="mood-btn" data-mood="empowering">
+              <span class="mood-icon">💪</span>
+              <span class="mood-label">Empowering</span>
+              <span class="mood-desc">力強く</span>
+            </button>
+            <button class="mood-btn" data-mood="balanced">
+              <span class="mood-icon">🌈</span>
+              <span class="mood-label">Balanced</span>
+              <span class="mood-desc">ミックス</span>
+            </button>
+          </div>
         </div>
-      </div>
-      
-      <div class="setting-section">
-        <div class="setting-label">1日何文？ 🔢</div>
-        <div class="count-options">
-          <button class="option-btn" data-count="1">1文</button>
-          <button class="option-btn" data-count="2">2文</button>
-          <button class="option-btn" data-count="3">3文</button>
+
+        <div class="form-group">
+          <label>難易度</label>
+          <div class="level-grid" id="levelGrid">
+            <button class="level-btn" data-level="easy">
+              <span>初級</span>
+              <small>英検5級/4級</small>
+            </button>
+            <button class="level-btn" data-level="intermediate">
+              <span>中級</span>
+              <small>英検3級</small>
+            </button>
+            <button class="level-btn" data-level="advanced">
+              <span>上級</span>
+              <small>英検準2級/2級</small>
+            </button>
+          </div>
+          <p class="hint-text">💡 選択したムードの文が足りない場合は、同じレベル内の他のムードも含まれます</p>
         </div>
+
+        <div class="form-group">
+          <label>1日何文？</label>
+          <div class="count-grid" id="countGrid">
+            <button class="count-btn" data-count="1">1文</button>
+            <button class="count-btn" data-count="2">2文</button>
+            <button class="count-btn" data-count="3">3文</button>
+          </div>
+        </div>
+
+        <button class="primary-btn" id="drawCardsBtn">
+          🔮 今週のカードを引く
+        </button>
       </div>
-      
-      <button class="big-button" id="drawCardsBtn">
-        🔮 今週のカードを引く
-      </button>
     </div>
-    
-    <div id="calendarScreen" class="card hidden">
-      <div class="week-info" id="weekInfo"></div>
-      <div class="calendar-grid" id="calendarGrid"></div>
-      <button class="big-button" id="changeSettingsBtn">
-        ⚙️ 設定を変更
-      </button>
+
+    <!-- カレンダー画面 -->
+    <div id="calendarScreen" class="screen" style="display: none;">
+      <div class="header">
+        <h2 id="weekRange"></h2>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="secondary-btn" id="statsBtn">📊 統計</button>
+          <button class="secondary-btn" id="settingsBtn">⚙️ 設定を変更</button>
+        </div>
+      </div>
+      <div class="calendar-container" id="calendar"></div>
     </div>
-    
-    <div id="affirmationScreen" class="card hidden">
-      <h2 id="dateTitle"></h2>
-      <div id="affirmationContainer"></div>
-      <button class="done-btn" id="submitBtn">
-        ✨ 完了して送信
-      </button>
-      <button class="big-button" id="backBtn" style="background: white; color: #667eea; border: 2px solid #667eea;">
-        📅 カレンダーに戻る
-      </button>
+
+    <!-- アファメーション画面 -->
+    <div id="affirmationScreen" class="screen" style="display: none;">
+      <div class="header">
+        <button class="secondary-btn" id="backBtn">← 戻る</button>
+        <h2 id="affirmationDate"></h2>
+        <div style="width: 80px;"></div>
+      </div>
+      
+      <div class="affirmation-container">
+        <div class="affirmation-card">
+          <div class="affirmation-text" id="affirmationText"></div>
+          <div class="affirmation-japanese" id="affirmationJapanese" style="display: none;"></div>
+          <button class="toggle-btn" id="toggleJapanese">日本語を表示</button>
+        </div>
+
+        <div class="audio-controls">
+          <button class="audio-btn" id="playModelBtn">
+            <span class="btn-icon">🔊</span>
+            <span>お手本を聞く</span>
+          </button>
+          <button class="audio-btn" id="recordBtn">
+            <span class="btn-icon">🎤</span>
+            <span>録音する</span>
+          </button>
+        </div>
+
+        <div id="recordingPlayer" style="display: none;">
+          <audio id="recordingAudio" controls></audio>
+        </div>
+
+        <div class="pagination" id="pagination"></div>
+
+        <button class="primary-btn" id="completeBtn" style="display: none;">
+          ✨ 完了して送信
+        </button>
+      </div>
+    </div>
+
+    <!-- 統計画面 -->
+    <div id="statsScreen" class="screen" style="display: none;">
+      <div class="header">
+        <button class="secondary-btn" id="backToCalendarBtn">← カレンダーに戻る</button>
+        <h2>📊 学習統計</h2>
+        <div style="width: 120px;"></div>
+      </div>
+      
+      <div class="calendar-container" id="statsContainer">
+        <!-- 統計カードはJSで動的生成 -->
+      </div>
     </div>
   </div>
 
+  <!-- Firebase SDK -->
   <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-    import { getFirestore, collection, query, where, getDocs, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
-    import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js';
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyB1Z5kXS----(本体はちゃんと入ってる)",
-      authDomain: "affirmation-calendar-2975e.firebaseapp.com",
-      projectId: "affirmation-calendar-2975e",
-      storageBucket: "affirmation-calendar-2975e.firebasestorage.app",
-      messagingSenderId: "157108172093",
-      appId: "1:157108172093:web:f959a9a01ff4522e368154",
-      measurementId: "G-FY4DEB884Q"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
-
-    let currentDayIndex = null;
-    let recordings = [];
-    let mediaRecorder = null;
-    let studentName = localStorage.getItem('studentName') || '';
-    let weeklyData = null;
-
-    document.addEventListener('DOMContentLoaded', init);
-
-    function init() {
-      loadWeeklyData();
-      setupEventListeners();
-      
-      const quickNameInput = document.getElementById('quickNameInput');
-      if (quickNameInput && studentName) {
-        quickNameInput.value = studentName;
-      }
-      
-      updateHeaderWithName();
-    }
-
-    function setupEventListeners() {
-      document.querySelectorAll('[data-mood]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('[data-mood]').forEach(b => b.classList.remove('selected'));
-          btn.classList.add('selected');
-        });
-      });
-
-      document.querySelectorAll('[data-level]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('[data-level]').forEach(b => b.classList.remove('selected'));
-          btn.classList.add('selected');
-        });
-      });
-
-      document.querySelectorAll('[data-count]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('[data-count]').forEach(b => b.classList.remove('selected'));
-          btn.classList.add('selected');
-        });
-      });
-
-      document.getElementById('drawCardsBtn').addEventListener('click', drawCards);
-      document.getElementById('changeSettingsBtn').addEventListener('click', changeSettings);
-      document.getElementById('submitBtn').addEventListener('click', function() {
-        submitRecording(this);
-      });
-      document.getElementById('backBtn').addEventListener('click', backToCalendar);
-    }
-
-    function updateHeaderWithName() {
-      const header = document.querySelector('.container h1');
-      if (studentName) {
-        header.textContent = `🔮 ${studentName}さんのアファメーション`;
-      }
-    }
-
-    function loadWeeklyData() {
-      const stored = localStorage.getItem('weeklyAffirmations');
-      if (stored) {
-        weeklyData = JSON.parse(stored);
-        const weekStart = new Date(weeklyData.weekStartDate);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        const daysDiff = Math.floor((today - weekStart) / (1000 * 60 * 60 * 24));
-        if (daysDiff >= 7 || daysDiff < 0) {
-          showSettingScreen();
-        } else {
-          showCalendar();
-        }
-      } else {
-        showSettingScreen();
-      }
-    }
-
-    async function drawCards() {
-      const name = document.getElementById('quickNameInput').value.trim();
-      const mood = document.querySelector('[data-mood].selected')?.dataset.mood;
-      const level = document.querySelector('[data-level].selected')?.dataset.level;
-      const count = parseInt(document.querySelector('[data-count].selected')?.dataset.count);
-
-      if (!name) {
-        alert('名前を入力してください');
-        return;
-      }
-
-      if (!mood || !level || !count) {
-        alert('すべての項目を選択してください');
-        return;
-      }
-
-      studentName = name;
-      localStorage.setItem('studentName', name);
-      updateHeaderWithName();
-
-      try {
-        const affirmationsRef = collection(db, 'affirmations');
-        let q;
-        
-        if (mood === 'balanced') {
-          q = query(affirmationsRef, where('level', '==', level));
-        } else {
-          q = query(
-            affirmationsRef,
-            where('level', '==', level),
-            where('moods', 'array-contains', mood)
-          );
-        }
-
-        const snapshot = await getDocs(q);
-        const allAffirmations = snapshot.docs.map(doc => doc.data());
-
-        if (allAffirmations.length < count * 7) {
-          alert('条件に合うアファメーションが不足しています');
-          return;
-        }
-
-        const shuffled = allAffirmations.sort(() => Math.random() - 0.5);
-        const weeklyCards = [];
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        for (let i = 0; i < 7; i++) {
-          const date = new Date(today);
-          date.setDate(date.getDate() + i);
-          
-          weeklyCards.push({
-            date: date.toISOString().split('T')[0],
-            dayOfWeek: i,
-            affirmations: shuffled.slice(i * count, (i + 1) * count),
-            completed: false
-          });
-        }
-
-        weeklyData = {
-          weekStartDate: today.toISOString().split('T')[0],
-          settings: { mood, level, sentencesPerDay: count },
-          weeklyCards: weeklyCards
-        };
-
-        localStorage.setItem('weeklyAffirmations', JSON.stringify(weeklyData));
-        
-        showCalendar();
-      } catch (error) {
-        console.error('Error:', error);
-        alert('データの取得に失敗しました: ' + error.message);
-      }
-    }
-
-    function changeSettings() {
-      const confirmed = confirm('設定を変更すると、今週のカードがリセットされます。\n本当に変更しますか？');
-      if (confirmed) {
-        localStorage.removeItem('weeklyAffirmations');
-        weeklyData = null;
-        showSettingScreen();
-      }
-    }
-
-    function showSettingScreen() {
-      document.getElementById('settingScreen').classList.remove('hidden');
-      document.getElementById('calendarScreen').classList.add('hidden');
-      document.getElementById('affirmationScreen').classList.add('hidden');
-      
-      const quickNameInput = document.getElementById('quickNameInput');
-      if (quickNameInput && studentName) {
-        quickNameInput.value = studentName;
-      }
-    }
-
-    function showCalendar() {
-      document.getElementById('settingScreen').classList.add('hidden');
-      document.getElementById('calendarScreen').classList.remove('hidden');
-      document.getElementById('affirmationScreen').classList.add('hidden');
-
-      renderCalendar();
-    }
-
-    function renderCalendar() {
-      const weekInfo = document.getElementById('weekInfo');
-      const grid = document.getElementById('calendarGrid');
-      
-      const startDate = new Date(weeklyData.weekStartDate);
-      const endDate = new Date(startDate);
-      endDate.setDate(endDate.getDate() + 6);
-      
-      weekInfo.textContent = `${formatDate(startDate)} 〜 ${formatDate(endDate)}`;
-      
-      grid.innerHTML = '';
-      const dayLabels = ['月', '火', '水', '木', '金', '土', '日'];
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      weeklyData.weeklyCards.forEach((day, index) => {
-        const dayDate = new Date(day.date);
-        const cell = document.createElement('div');
-        cell.className = 'day-cell';
-        
-        if (dayDate > today) {
-          cell.classList.add('future');
-        } else if (dayDate.toDateString() === today.toDateString()) {
-          cell.classList.add('today');
-        }
-        
-        if (day.completed) {
-          cell.classList.add('completed');
-        }
-
-        cell.innerHTML = `
-          <div class="day-label">${dayLabels[index]}</div>
-          <div class="day-icon">${day.completed ? '✅' : '🔮'}</div>
-        `;
-
-        if (dayDate <= today) {
-          cell.addEventListener('click', () => showAffirmation(index));
-        }
-
-        grid.appendChild(cell);
-      });
-    }
-
-    function showAffirmation(dayIndex) {
-      currentDayIndex = dayIndex;
-      recordings = [];
-
-      document.getElementById('settingScreen').classList.add('hidden');
-      document.getElementById('calendarScreen').classList.add('hidden');
-      document.getElementById('affirmationScreen').classList.remove('hidden');
-
-      const day = weeklyData.weeklyCards[dayIndex];
-      const date = new Date(day.date);
-      document.getElementById('dateTitle').textContent = formatDateLong(date);
-
-      renderAffirmations(day.affirmations);
-    }
-
-    function renderAffirmations(affirmations) {
-      const container = document.getElementById('affirmationContainer');
-      container.innerHTML = '';
-
-      affirmations.forEach((aff, index) => {
-        const card = document.createElement('div');
-        card.innerHTML = `
-          <div class="affirmation-card">
-            <div class="affirmation-text">${aff.text}</div>
-            <div class="toggle-japanese" data-index="${index}">
-              📖 日本語を見る ▼
-            </div>
-            <div class="affirmation-japanese" id="japanese-${index}">
-              ${aff.japanese}
-            </div>
-          </div>
-          
-          <div class="button-group">
-            <button class="action-btn play-btn" data-url="${aff.modelAudioUrl}">
-              🔊 お手本
-            </button>
-            <button class="action-btn record-btn" data-index="${index}">
-              🎤 録音
-            </button>
-          </div>
-          
-          <audio class="audio-player" id="player-${index}" controls></audio>
-        `;
-        
-        card.querySelector('.toggle-japanese').addEventListener('click', function() {
-          const idx = this.dataset.index;
-          document.getElementById(`japanese-${idx}`).classList.toggle('show');
-        });
-        
-        card.querySelector('.play-btn').addEventListener('click', function() {
-          const audio = new Audio(this.dataset.url);
-          audio.play();
-        });
-        
-        card.querySelector('.record-btn').addEventListener('click', function() {
-          toggleRecord(parseInt(this.dataset.index));
-        });
-        
-        container.appendChild(card);
-      });
-    }
-
-    async function toggleRecord(index) {
-      const btn = document.querySelector(`.record-btn[data-index="${index}"]`);
-      const player = document.getElementById(`player-${index}`);
-      
-      if (mediaRecorder && mediaRecorder.state === 'recording') {
-        mediaRecorder.stop();
-        btn.classList.remove('recording');
-        btn.textContent = '🎤 録音';
-      } else {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          mediaRecorder = new MediaRecorder(stream);
-          const chunks = [];
-
-          mediaRecorder.ondataavailable = e => chunks.push(e.data);
-          mediaRecorder.onstop = () => {
-            const blob = new Blob(chunks, { type: 'audio/webm' });
-            recordings[index] = blob;
-            
-            // 録音を再生できるようにする
-            const url = URL.createObjectURL(blob);
-            player.src = url;
-            player.classList.add('show');
-            
-            stream.getTracks().forEach(track => track.stop());
-          };
-
-          mediaRecorder.start();
-          btn.classList.add('recording');
-          btn.textContent = '⏹️ 停止';
-          player.classList.remove('show');
-        } catch (error) {
-          alert('マイクへのアクセスが拒否されました');
-        }
-      }
-    }
-
-    async function submitRecording(doneBtn) {
-      if (!studentName) {
-        alert('設定から名前を入力してください');
-        return;
-      }
-
-      if (recordings.length === 0) {
-        alert('少なくとも1文は録音してください');
-        return;
-      }
-
-      const originalText = doneBtn.innerHTML;
-      doneBtn.disabled = true;
-      doneBtn.innerHTML = '<span class="spinner"></span> 送信中...';
-      doneBtn.style.background = '#9ca3af';
-
-      try {
-        const day = weeklyData.weeklyCards[currentDayIndex];
-        const uploadedFiles = [];
-        
-        // Firebase Storageに直接アップロード
-        for (let i = 0; i < recordings.length; i++) {
-          if (recordings[i]) {
-            const timestamp = new Date().getTime();
-            const filename = `${studentName}_${day.date}_${i}_${timestamp}.webm`;
-            const storageRef = ref(storage, `recordings/${studentName}/${day.date}/${filename}`);
-            
-            // アップロード
-            await uploadBytes(storageRef, recordings[i]);
-            
-            // ダウンロードURL取得
-            const downloadURL = await getDownloadURL(storageRef);
-            
-            uploadedFiles.push({
-              affirmation: day.affirmations[i].text,
-              japanese: day.affirmations[i].japanese,
-              audioUrl: downloadURL,
-              filename: filename
-            });
-          }
-        }
-        
-        // Firestoreにメタデータを保存
-        await addDoc(collection(db, 'recordings'), {
-          studentName: studentName,
-          date: day.date,
-          files: uploadedFiles,
-          settings: weeklyData.settings,
-          createdAt: serverTimestamp()
-        });
-
-        day.completed = true;
-        localStorage.setItem('weeklyAffirmations', JSON.stringify(weeklyData));
-        
-        alert(`✨ ${studentName}さんの音読を送信しました！`);
-        showCalendar();
-        
-      } catch (err) {
-        console.error('Error:', err);
-        alert('送信に失敗しました: ' + err.message);
-        doneBtn.disabled = false;
-        doneBtn.innerHTML = originalText;
-        doneBtn.removeAttribute('style');
-      }
-    }
-
-    function backToCalendar() {
-      showCalendar();
-    }
-
-    function formatDate(date) {
-      return `${date.getMonth() + 1}/${date.getDate()}`;
-    }
-
-    function formatDateLong(date) {
-      const days = ['日', '月', '火', '水', '木', '金', '土'];
-      return `${date.getMonth() + 1}月${date.getDate()}日（${days[date.getDay()]}）`;
-    }
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+    import { getStorage } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+    
+    // グローバルにFirebaseを公開
+    window.initializeApp = initializeApp;
+    window.getFirestore = getFirestore;
+    window.getStorage = getStorage;
   </script>
+
+  <!-- アプリケーションJS（モジュール順に読み込み） -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/firebase-service.js"></script>
+  <script src="js/stats.js"></script>
+  <script src="js/calendar.js"></script>
+  <script src="js/affirmation.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>

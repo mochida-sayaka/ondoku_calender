@@ -55,33 +55,72 @@ async function fetchAffirmations(settings) {
   return affirmations;
 }
 
-// 週間カードを抽選
+// 週間カードを抽選（フォールバック付き）
 async function drawWeeklyCards(settings) {
   console.log('🎴 カード抽選開始', settings);
   
-  // アファメーションを取得
-  const allAffirmations = await fetchAffirmations(settings);
+  const { mood, level, sentencesPerDay } = settings;
+  const needed = sentencesPerDay * 7;
+  const usedIds = window.utils.getUsedIdsByLevel(level);
   
-  if (allAffirmations.length === 0) {
-    throw new Error('条件に合うアファメーションが見つかりませんでした');
+  // 優先度1: 同じレベル + 同じムード の未使用文
+  let available = await fetchAffirmations({ level, mood });
+  available = available.filter(a => !usedIds.includes(a.id));
+  
+  console.log(`📚 同レベル・同ムード未使用: ${available.length}件`);
+  
+  if (available.length >= needed) {
+    // 十分ある！
+    return createWeeklyData(window.utils.pickRandomItems(available, needed), settings);
   }
   
-  // 7日分のカードを作成
+  // 優先度2: 同じレベル + 全ムード の未使用文
+  available = await fetchAffirmations({ level });
+  available = available.filter(a => !usedIds.includes(a.id));
+  
+  console.log(`📚 同レベル全ムード未使用: ${available.length}件`);
+  
+  if (available.length >= needed) {
+    console.log('💡 同じムードが足りないので、他のムードも混ぜました');
+    return createWeeklyData(window.utils.pickRandomItems(available, needed), settings);
+  }
+  
+  // レベルコンプリート or もうすぐコンプリート
+  const completion = window.utils.checkLevelCompletion(level);
+  
+  if (completion.completed) {
+    console.log('🎉 このレベルはコンプリート済み！再抽選します');
+    // コンプ済みでも同じレベルから再抽選
+    available = await fetchAffirmations({ level });
+    return createWeeklyData(window.utils.pickRandomItems(available, needed), settings, true);
+  }
+  
+  // 足りない分は使える文を全部使う
+  console.log(`⚠️ 未使用文が足りません。残り${available.length}件を全部使います`);
+  return createWeeklyData(available, settings);
+}
+
+// 週間データを作成
+function createWeeklyData(affirmations, settings, isRepeating = false) {
   const weeklyCards = [];
   const today = new Date();
   const startDate = new Date(today);
   startDate.setDate(today.getDate() - today.getDay() + 1); // 月曜日
+  
+  const sentencesPerDay = settings.sentencesPerDay;
+  let affirmationIndex = 0;
   
   for (let i = 0; i < 7; i++) {
     const date = new Date(startDate);
     date.setDate(startDate.getDate() + i);
     const dateStr = date.toISOString().split('T')[0];
     
-    // この日のアファメーションを抽選
-    const dayAffirmations = window.utils.pickRandomItems(
-      allAffirmations,
-      settings.sentencesPerDay
-    );
+    // この日のアファメーション
+    const dayAffirmations = [];
+    for (let j = 0; j < sentencesPerDay && affirmationIndex < affirmations.length; j++) {
+      dayAffirmations.push(affirmations[affirmationIndex]);
+      affirmationIndex++;
+    }
     
     weeklyCards.push({
       date: dateStr,
@@ -97,7 +136,8 @@ async function drawWeeklyCards(settings) {
     weekStartDate: weekRange.start,
     weekEndDate: weekRange.end,
     settings: settings,
-    weeklyCards: weeklyCards
+    weeklyCards: weeklyCards,
+    isRepeating: isRepeating // コンプ後の再抽選フラグ
   };
   
   localStorage.setItem('weeklyData', JSON.stringify(weeklyData));
@@ -160,6 +200,19 @@ async function uploadRecordingsToFirebase() {
   
   // 完了状態を更新
   day.completed = true;
+  
+  // 使用済みIDとしてマーク
+  day.affirmations.forEach(aff => {
+    window.utils.markAsUsed(aff.id, window.appState.weeklyData.settings.level);
+  });
+  
+  // レベルコンプリート確認
+  const completion = window.utils.checkLevelCompletion(window.appState.weeklyData.settings.level);
+  if (completion.justCompleted) {
+    // コンプリートした瞬間！
+    localStorage.setItem('justCompletedLevel', window.appState.weeklyData.settings.level);
+  }
+  
   localStorage.setItem('weeklyData', JSON.stringify(window.appState.weeklyData));
   
   console.log('🎉 Firestoreに保存完了');

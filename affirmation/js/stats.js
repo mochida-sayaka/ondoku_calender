@@ -162,6 +162,9 @@ function displayStats(stats) {
   // 今週の完了率カード
   container.appendChild(createWeekCompletionCard());
   
+  // レベル別コンプリート状況カード（NEW!）
+  container.appendChild(createLevelCompletionCard());
+  
   // 累計学習カード
   container.appendChild(createTotalStatsCard(stats));
   
@@ -173,6 +176,82 @@ function displayStats(stats) {
   
   // バッジカード
   container.appendChild(createBadgesCard(stats.badges));
+}
+
+// レベル別コンプリート状況カード（NEW!）
+function createLevelCompletionCard() {
+  const completion = window.utils.checkAllLevelsCompletion();
+  const easy = completion.easy;
+  const intermediate = completion.intermediate;
+  const advanced = completion.advanced;
+  
+  const card = document.createElement('div');
+  card.className = 'stat-card';
+  card.innerHTML = `
+    <div class="stat-label">🏆 レベル別コンプリート状況</div>
+    <div class="level-completion-stats">
+      <div class="level-completion-bar ${easy.completed ? 'completed' : ''}">
+        <div class="level-completion-header">
+          <span class="level-icon">🌟</span>
+          <span class="level-name">初級</span>
+          <span class="level-count">${easy.progress} / ${easy.total}文</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill level-easy" style="width: ${easy.percentage}%"></div>
+        </div>
+        <div class="level-completion-status">
+          ${easy.completed 
+            ? '✅ コンプリート達成！' 
+            : easy.percentage >= 90 
+            ? `🏆 あと${easy.total - easy.progress}文でコンプリート！` 
+            : `${easy.percentage}%`}
+        </div>
+      </div>
+      
+      <div class="level-completion-bar ${intermediate.completed ? 'completed' : ''}">
+        <div class="level-completion-header">
+          <span class="level-icon">🚀</span>
+          <span class="level-name">中級</span>
+          <span class="level-count">${intermediate.progress} / ${intermediate.total}文</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill level-intermediate" style="width: ${intermediate.percentage}%"></div>
+        </div>
+        <div class="level-completion-status">
+          ${intermediate.completed 
+            ? '✅ コンプリート達成！' 
+            : intermediate.percentage >= 90 
+            ? `🏆 あと${intermediate.total - intermediate.progress}文でコンプリート！` 
+            : `${intermediate.percentage}%`}
+        </div>
+      </div>
+      
+      <div class="level-completion-bar ${advanced.completed ? 'completed' : ''}">
+        <div class="level-completion-header">
+          <span class="level-icon">💎</span>
+          <span class="level-name">上級</span>
+          <span class="level-count">${advanced.progress} / ${advanced.total}文</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill level-advanced" style="width: ${advanced.percentage}%"></div>
+        </div>
+        <div class="level-completion-status">
+          ${advanced.completed 
+            ? '✅ コンプリート達成！' 
+            : advanced.percentage >= 90 
+            ? `🏆 あと${advanced.total - advanced.progress}文でコンプリート！` 
+            : `${advanced.percentage}%`}
+        </div>
+      </div>
+    </div>
+    
+    ${completion.allCompleted ? `
+      <div class="all-complete-banner">
+        👑 全レベルコンプリート達成！
+      </div>
+    ` : ''}
+  `;
+  return card;
 }
 
 // 連続記録カード
