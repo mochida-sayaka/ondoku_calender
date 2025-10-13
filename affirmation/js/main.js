@@ -632,6 +632,7 @@ function getLevelName(level) {
 }
 
 // グローバルに公開（既存の行を探して、これに置き換え）
+// 既存の行（そのまま）
 window.continueCurrentLevel = continueCurrentLevel;
 window.changeLevel = changeLevel;
 window.resetAllProgress = resetAllProgress;

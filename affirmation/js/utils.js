@@ -175,12 +175,20 @@ function getLevelProgress(level) {
 
 // ユーティリティ関数をエクスポート
 window.utils = {
+  formatDate,
+  getWeekRange,
+  getDayLabel,
+  shuffleArray,
+  pickRandomItems,
+  formatDuration,
+  fileToBase64,
+  showLoading,
+  hideLoading,
   markAsUsed,
   getUsedIdsByLevel,
   checkLevelCompletion,
   checkAllLevelsCompletion,
   resetUsedIds,
-  resetLevelProgress,
   getCurrentStreak,
   getLevelProgress
 };
