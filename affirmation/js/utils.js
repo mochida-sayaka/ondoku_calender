@@ -137,19 +137,50 @@ function checkAllLevelsCompletion() {
 }
 
 // グローバルに公開
+// 連続記録日数を取得
+function getCurrentStreak() {
+  const weekData = JSON.parse(localStorage.getItem('weeklyData') || 'null');
+  if (!weekData) return 0;
+  
+  let streak = 0;
+  
+  // 今週の完了日数をカウント
+  for (let i = weekData.weeklyCards.length - 1; i >= 0; i--) {
+    const day = weekData.weeklyCards[i];
+    if (day.completed) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+  
+  return streak;
+}
+
+// レベル別進捗を取得
+function getLevelProgress(level) {
+  const usedIds = getUsedIdsByLevel(level);
+  const totalByLevel = {
+    easy: 365,
+    intermediate: 360,
+    advanced: 285
+  };
+  
+  return {
+    used: usedIds.length,
+    total: totalByLevel[level],
+    percentage: Math.round((usedIds.length / totalByLevel[level]) * 100)
+  };
+}
+
+// ユーティリティ関数をエクスポート
 window.utils = {
-  formatDate,
-  getWeekRange,
-  getDayLabel,
-  shuffleArray,
-  pickRandomItems,
-  formatDuration,
-  fileToBase64,
-  showLoading,
-  hideLoading,
-  getUsedIdsByLevel,
   markAsUsed,
-  resetUsedIds,
+  getUsedIdsByLevel,
   checkLevelCompletion,
-  checkAllLevelsCompletion
+  checkAllLevelsCompletion,
+  resetUsedIds,
+  resetLevelProgress,
+  getCurrentStreak,
+  getLevelProgress
 };

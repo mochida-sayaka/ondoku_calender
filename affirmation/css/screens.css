@@ -270,3 +270,83 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* 週終了サマリー */
+.week-summary {
+  max-width: 500px;
+}
+
+.week-stats {
+  display: grid;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.week-stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+}
+
+.week-stat .stat-icon {
+  font-size: 28px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.week-stat .stat-info {
+  flex: 1;
+}
+
+.week-stat .stat-label {
+  font-size: 13px;
+  color: #6c757d;
+  margin-bottom: 4px;
+}
+
+.week-stat .stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+.week-achievements {
+  margin: 24px 0;
+  padding: 20px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-radius: 12px;
+  border: 1px solid #bae6fd;
+}
+
+.week-achievements h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: #0c4a6e;
+}
+
+.week-achievements ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.week-achievements li {
+  padding: 8px 0;
+  color: #0c4a6e;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.week-achievements li:not(:last-child) {
+  border-bottom: 1px solid #bae6fd;
+}

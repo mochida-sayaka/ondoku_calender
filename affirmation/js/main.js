@@ -42,8 +42,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       // 週がまだ続いているのでカレンダーを表示
       showCalendar();
     } else {
-      // 週が終了したので設定画面に戻る
-      showSetupScreen();
+      // 週が終了した！サマリーを表示
+      showWeekSummary();
     }
   } else {
     // 初回起動
@@ -453,3 +453,189 @@ async function handleComplete() {
     btn.innerHTML = '✨ 完了して送信';
   }
 }
+
+// 週終了サマリーを表示
+async function showWeekSummary() {
+  console.log('📊 週終了サマリーを表示');
+  
+  const weekData = window.appState.weeklyData;
+  if (!weekData) {
+    showSetupScreen();
+    return;
+  }
+  
+  // 今週の統計を計算
+  const stats = await calculateWeekStats(weekData);
+  
+  // モーダルHTML
+  const modalHTML = `
+    <div class="completion-modal-overlay" id="weekSummaryModal">
+      <div class="completion-modal week-summary">
+        <div class="completion-icon">🎊</div>
+        <h2>今週お疲れ様でした！</h2>
+        <p class="completion-subtitle">${stats.weekPeriod}</p>
+        
+        <div class="week-stats">
+          <div class="week-stat">
+            <div class="stat-icon">✅</div>
+            <div class="stat-info">
+              <div class="stat-label">完了日数</div>
+              <div class="stat-value">${stats.completedDays}/7日</div>
+            </div>
+          </div>
+          
+          <div class="week-stat">
+            <div class="stat-icon">📚</div>
+            <div class="stat-info">
+              <div class="stat-label">完了文数</div>
+              <div class="stat-value">${stats.totalAffirmations}文</div>
+            </div>
+          </div>
+          
+          <div class="week-stat">
+            <div class="stat-icon">⏱️</div>
+            <div class="stat-info">
+              <div class="stat-label">録音時間</div>
+              <div class="stat-value">約${stats.estimatedTime}分</div>
+            </div>
+          </div>
+          
+          <div class="week-stat">
+            <div class="stat-icon">🔥</div>
+            <div class="stat-info">
+              <div class="stat-label">連続記録</div>
+              <div class="stat-value">${stats.currentStreak}日継続中</div>
+            </div>
+          </div>
+        </div>
+        
+        ${stats.achievements.length > 0 ? `
+          <div class="week-achievements">
+            <h3>📈 今週の成長</h3>
+            <ul>
+              ${stats.achievements.map(a => `<li>${a}</li>`).join('')}
+            </ul>
+          </div>
+        ` : ''}
+        
+        <p class="completion-message">素晴らしい1週間でした！</p>
+        
+        <div class="completion-buttons">
+          <button class="modal-btn secondary" onclick="viewStatsFromSummary()">
+            📊 統計を見る
+          </button>
+          <button class="modal-btn primary" onclick="startNewWeek()">
+            ✨ 次の週へ
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+// 週の統計を計算
+async function calculateWeekStats(weekData) {
+  const { weekStartDate, weekEndDate, weeklyCards, settings } = weekData;
+  
+  // 完了日数を計算
+  let completedDays = 0;
+  weeklyCards.forEach(day => {
+    if (day.completed) completedDays++;
+  });
+  
+  // 完了文数を計算
+  const totalAffirmations = completedDays * settings.sentencesPerDay;
+  
+  // 録音時間を推定（1文あたり30秒と仮定）
+  const estimatedTime = Math.round(totalAffirmations * 0.5);
+  
+  // 連続記録を取得
+  const currentStreak = await window.utils.getCurrentStreak();
+  
+  // 今週の成長（達成項目）
+  const achievements = [];
+  
+  if (completedDays === 7) {
+    achievements.push('🎯 全日完了達成！');
+  }
+  
+  if (currentStreak >= 7) {
+    achievements.push(`🔥 ${currentStreak}日連続達成！`);
+  }
+  
+  // レベル別進捗
+  const levelProgress = window.utils.getLevelProgress(settings.level);
+  if (levelProgress) {
+    achievements.push(`${getLevelIcon(settings.level)} ${getLevelName(settings.level)}: +${totalAffirmations}文`);
+  }
+  
+  // 期間をフォーマット
+  const startDate = new Date(weekStartDate);
+  const endDate = new Date(weekEndDate);
+  const weekPeriod = `${formatDate(startDate)} 〜 ${formatDate(endDate)}`;
+  
+  return {
+    weekPeriod,
+    completedDays,
+    totalAffirmations,
+    estimatedTime,
+    currentStreak,
+    achievements
+  };
+}
+
+// 統計画面へ移動
+function viewStatsFromSummary() {
+  const modal = document.getElementById('weekSummaryModal');
+  if (modal) modal.remove();
+  showStatsScreen();
+}
+
+// 新しい週を開始
+function startNewWeek() {
+  const modal = document.getElementById('weekSummaryModal');
+  if (modal) modal.remove();
+  
+  // 週データをクリア
+  localStorage.removeItem('weeklyData');
+  window.appState.weeklyData = null;
+  
+  // 設定画面へ
+  showSetupScreen();
+}
+
+// ヘルパー関数
+function formatDate(date) {
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  return `${month}/${day}`;
+}
+
+function getLevelIcon(level) {
+  const icons = {
+    easy: '🌟',
+    intermediate: '🚀',
+    advanced: '💎'
+  };
+  return icons[level] || '📚';
+}
+
+function getLevelName(level) {
+  const names = {
+    easy: '初級',
+    intermediate: '中級',
+    advanced: '上級'
+  };
+  return names[level] || '';
+}
+
+// グローバルに公開（既存の行を探して、これに置き換え）
+window.continueCurrentLevel = continueCurrentLevel;
+window.changeLevel = changeLevel;
+window.resetAllProgress = resetAllProgress;
+window.closeCompletionModal = closeCompletionModal;
+window.showWeekSummary = showWeekSummary;
+window.viewStatsFromSummary = viewStatsFromSummary;
+window.startNewWeek = startNewWeek;
