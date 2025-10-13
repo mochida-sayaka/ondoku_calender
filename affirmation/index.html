@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎴 アファメーションカレンダー</title>
+  <title>🔮 アファメーションカレンダー</title>
   <style>
     * {
       box-sizing: border-box;
@@ -46,7 +46,6 @@
       font-size: 22px;
     }
     
-    /* 設定画面 */
     .setting-section {
       margin-bottom: 25px;
     }
@@ -109,7 +108,6 @@
       box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
     }
     
-    /* カレンダー */
     .week-info {
       text-align: center;
       color: #666;
@@ -168,7 +166,6 @@
       font-size: 24px;
     }
     
-    /* アファメーション表示 */
     .affirmation-card {
       background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
       border-radius: 16px;
@@ -250,33 +247,6 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
     
-    .pagination {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 15px;
-    }
-    
-    .pagination-btn {
-      padding: 8px 16px;
-      background: white;
-      border: 2px solid #667eea;
-      border-radius: 8px;
-      color: #667eea;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    
-    .pagination-btn:disabled {
-      opacity: 0.3;
-      cursor: not-allowed;
-    }
-    
-    .pagination-info {
-      color: #666;
-      font-weight: 600;
-    }
-    
     .done-btn {
       width: 100%;
       padding: 15px;
@@ -294,7 +264,45 @@
       display: none;
     }
     
-    /* レスポンシブ */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .modal.show {
+      display: flex;
+    }
+    
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      font-size: 16px;
+    }
+    
     @media (max-width: 400px) {
       .container {
         padding: 10px;
@@ -314,13 +322,12 @@
   <div class="container">
     <h1>🔮 アファメーションカレンダー</h1>
     
-    <!-- 設定画面 -->
     <div id="settingScreen" class="card">
       <h2>今週の設定</h2>
       
       <div class="setting-section">
         <div class="setting-label">あなたの名前 👤</div>
-        <input type="text" id="quickNameInput" placeholder="例: 田中太郎" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 12px; font-size: 16px;">
+        <input type="text" id="quickNameInput" placeholder="例: 田中太郎">
       </div>
       
       <div class="setting-section">
@@ -370,7 +377,6 @@
       </button>
     </div>
     
-    <!-- カレンダー画面 -->
     <div id="calendarScreen" class="card hidden">
       <div class="week-info" id="weekInfo"></div>
       <div class="calendar-grid" id="calendarGrid"></div>
@@ -379,19 +385,27 @@
       </button>
     </div>
     
-    <!-- アファメーション表示 -->
     <div id="affirmationScreen" class="card hidden">
       <h2 id="dateTitle"></h2>
-      
       <div id="affirmationContainer"></div>
-      
-      <button class="done-btn" onclick="markAsComplete()">
-        ✅ 完了して送信
+      <button class="done-btn" onclick="submitRecording(this)">
+        ✨ 完了して送信
       </button>
-      
       <button class="big-button" onclick="backToCalendar()" style="background: white; color: #667eea; border: 2px solid #667eea;">
         📅 カレンダーに戻る
       </button>
+    </div>
+    
+    <div id="settingsModal" class="modal hidden">
+      <div class="card" style="max-width: 400px;">
+        <h2>⚙️ 設定</h2>
+        <div style="margin: 20px 0;">
+          <label style="display: block; font-weight: 600; margin-bottom: 8px;">あなたの名前</label>
+          <input type="text" id="nameInput" placeholder="例: 田中太郎">
+        </div>
+        <button class="big-button" onclick="saveStudentName()">保存</button>
+        <button class="big-button" onclick="closeSettingsModal()" style="background: #e5e7eb; color: #374151;">キャンセル</button>
+      </div>
     </div>
   </div>
 
@@ -399,10 +413,8 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
     import { getFirestore, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
-    // GAS URL（既存の音読カレンダーと同じ）
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbzRwBx_XrJGvRMC2vAagtknPKD86ME9atrxCbIokJBxJs0K-ZFLBVDihxf3hwop5glf/exec';
 
-    // Firebase設定（あなたの設定に置き換えてください）
     const firebaseConfig = {
       apiKey: "AIzaSyB1Z5kXS----(本体はちゃんと入ってる)",
       authDomain: "affirmation-calendar-2975e.firebaseapp.com",
@@ -416,7 +428,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // グローバル変数
     window.currentSettings = null;
     window.weeklyData = null;
     window.currentDayIndex = null;
@@ -425,7 +436,6 @@
     window.mediaRecorder = null;
     window.studentName = localStorage.getItem('studentName') || '';
 
-    // 初期化
     window.addEventListener('DOMContentLoaded', init);
 
     function init() {
@@ -433,7 +443,6 @@
       setupSettingButtons();
       updateHeaderWithName();
       
-      // 名前フィールドにデフォルト値をセット
       const quickNameInput = document.getElementById('quickNameInput');
       if (quickNameInput && window.studentName) {
         quickNameInput.value = window.studentName;
@@ -455,21 +464,18 @@
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         
-        // 週が終わっているかチェック
         const daysDiff = Math.floor((today - weekStart) / (1000 * 60 * 60 * 24));
         if (daysDiff >= 7 || daysDiff < 0) {
-          // 週が終わった
-          showSettings();
+          showSettingScreen();
         } else {
           showCalendar();
         }
       } else {
-        showSettings();
+        showSettingScreen();
       }
     }
 
     function setupSettingButtons() {
-      // 気分選択
       document.querySelectorAll('[data-mood]').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('[data-mood]').forEach(b => b.classList.remove('selected'));
@@ -477,7 +483,6 @@
         });
       });
 
-      // 難易度選択
       document.querySelectorAll('[data-level]').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('[data-level]').forEach(b => b.classList.remove('selected'));
@@ -485,7 +490,6 @@
         });
       });
 
-      // 文数選択
       document.querySelectorAll('[data-count]').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('[data-count]').forEach(b => b.classList.remove('selected'));
@@ -510,21 +514,17 @@
         return;
       }
 
-      // 名前を保存
       window.studentName = name;
       localStorage.setItem('studentName', name);
       updateHeaderWithName();
 
-      // Firebaseからデータ取得
       try {
         const affirmationsRef = collection(db, 'affirmations');
         let q;
         
         if (mood === 'balanced') {
-          // バランスの場合は全ムード
           q = query(affirmationsRef, where('level', '==', level));
         } else {
-          // 特定のムード
           q = query(
             affirmationsRef,
             where('level', '==', level),
@@ -540,7 +540,6 @@
           return;
         }
 
-        // 7日分をランダム抽出（重複なし）
         const shuffled = allAffirmations.sort(() => Math.random() - 0.5);
         const weeklyCards = [];
         const today = new Date();
@@ -558,7 +557,6 @@
           });
         }
 
-        // LocalStorageに保存
         window.weeklyData = {
           weekStartDate: today.toISOString().split('T')[0],
           settings: { mood, level, sentencesPerDay: count },
@@ -574,16 +572,24 @@
       }
     };
 
-    function showSettings() {
-      document.getElementById('settingScreen').classList.remove('hidden');
-      document.getElementById('calendarScreen').classList.add('hidden');
-      document.getElementById('affirmationScreen').classList.add('hidden');
-    }
+    window.changeSettings = function() {
+      const confirmed = confirm('設定を変更すると、今週のカードがリセットされます。\n本当に変更しますか？');
+      if (confirmed) {
+        localStorage.removeItem('weeklyAffirmations');
+        window.weeklyData = null;
+        showSettingScreen();
+      }
+    };
 
-    function showSettings() {
+    function showSettingScreen() {
       document.getElementById('settingScreen').classList.remove('hidden');
       document.getElementById('calendarScreen').classList.add('hidden');
       document.getElementById('affirmationScreen').classList.add('hidden');
+      
+      const quickNameInput = document.getElementById('quickNameInput');
+      if (quickNameInput && window.studentName) {
+        quickNameInput.value = window.studentName;
+      }
     }
 
     function showCalendar() {
@@ -681,19 +687,6 @@
         `;
         container.appendChild(card);
       });
-
-      if (affirmations.length > 1) {
-        const pagination = document.createElement('div');
-        pagination.className = 'pagination';
-        pagination.innerHTML = `
-          <button class="pagination-btn" onclick="prevAffirmation()" id="prevBtn">← 前へ</button>
-          <div class="pagination-info">
-            <span id="currentNum">1</span> / ${affirmations.length}
-          </div>
-          <button class="pagination-btn" onclick="nextAffirmation()" id="nextBtn">次へ →</button>
-        `;
-        container.appendChild(pagination);
-      }
     }
 
     window.toggleJapanese = function(index) {
@@ -735,15 +728,13 @@
       }
     };
 
-    window.markAsComplete = async function(doneBtn) {
-      // 名前チェック
+    window.submitRecording = async function(doneBtn) {
       if (!window.studentName) {
         alert('設定から名前を入力してください');
         showStudentSettings();
         return;
       }
 
-      // 録音チェック（少なくとも1つ録音が必要）
       if (window.recordings.length === 0) {
         alert('少なくとも1文は録音してください');
         return;
@@ -757,7 +748,6 @@
       try {
         const day = window.weeklyData.weeklyCards[window.currentDayIndex];
         
-        // 録音データを送信
         for (let i = 0; i < window.recordings.length; i++) {
           if (window.recordings[i]) {
             const reader = new FileReader();
@@ -787,10 +777,8 @@
           }
         }
 
-        // 最低1秒待つ
         await new Promise(resolve => setTimeout(resolve, 1000));
         
-        // 完了記録
         day.completed = true;
         localStorage.setItem('weeklyAffirmations', JSON.stringify(window.weeklyData));
         
@@ -806,7 +794,9 @@
       }
     };
 
-    window.submitRecording = window.markAsComplete;
+    window.backToCalendar = function() {
+      showCalendar();
+    };
 
     window.showStudentSettings = function() {
       document.getElementById('nameInput').value = window.studentName;
@@ -831,25 +821,6 @@
         alert('名前を入力してください');
       }
     };
-
-    window.backToCalendar = function() {
-      showCalendar();
-    };
-
-    window.changeSettings = function() {
-      const confirmed = confirm('設定を変更すると、今週のカードがリセットされます。\n本当に変更しますか？');
-      if (confirmed) {
-        localStorage.removeItem('weeklyAffirmations');
-        window.weeklyData = null;
-        showSettingsScreen();
-      }
-    };
-
-    function showSettingsScreen() {
-      document.getElementById('settingScreen').classList.remove('hidden');
-      document.getElementById('calendarScreen').classList.add('hidden');
-      document.getElementById('affirmationScreen').classList.add('hidden');
-    }
 
     function formatDate(date) {
       return `${date.getMonth() + 1}/${date.getDate()}`;
