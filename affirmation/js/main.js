@@ -351,9 +351,22 @@ async function playModelAudio() {
   const day = window.appState.weeklyData.weeklyCards[window.appState.currentDayIndex];
   const affirmation = day.affirmations[window.appState.currentAffirmationIndex];
   
-  if (affirmation.audioUrl) {
-    const audio = new Audio(affirmation.audioUrl);
-    audio.play();
+  // modelAudioUrl を使用（Firestoreのフィールド名に合わせる）
+  const audioUrl = affirmation.modelAudioUrl || affirmation.audioUrl;
+  
+  if (audioUrl) {
+    try {
+      const audio = new Audio(audioUrl);
+      audio.play().catch(error => {
+        console.error('❌ 音声再生エラー:', error);
+        alert('音声の再生に失敗しました');
+      });
+    } catch (error) {
+      console.error('❌ 音声オブジェクト作成エラー:', error);
+    }
+  } else {
+    console.error('❌ 音声URLが見つかりません');
+    alert('お手本音声が見つかりません');
   }
 }
 
