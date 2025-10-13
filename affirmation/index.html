@@ -3,353 +3,749 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>音読カレンダー 📚</title>
+  <title>🎴 アファメーションカレンダー</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #fce7f3 0%, #e9d5ff 50%, #bfdbfe 100%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
       padding: 20px;
+      color: #333;
     }
-    .container { max-width: 900px; margin: 0 auto; }
-    .header {
-      background: white;
-      border-radius: 24px;
-      padding: 24px;
-      text-align: center;
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-      margin-bottom: 24px;
-    }
-    .title {
-      font-size: 32px;
-      font-weight: bold;
-      background: linear-gradient(to right, #9333ea, #ec4899);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 12px;
-    }
-    .calendar {
-      background: white;
-      border-radius: 24px;
-      padding: 24px;
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 12px;
-    }
-    .weekday-header {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 12px;
-      margin-bottom: 12px;
-      font-weight: bold;
-      color: #6b7280;
-      text-align: center;
-    }
-    .weekday {
-      padding: 8px 0;
-    }
-    .empty-day {
-      aspect-ratio: 1;
-    }
-    .day {
-      aspect-ratio: 1;
-      border: none;
-      border-radius: 16px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .day:hover:not(:disabled) { transform: scale(1.1); }
-    .day.today {
-      background: linear-gradient(135deg, #fcd34d, #fb923c);
-      color: white;
-      animation: pulse 2s infinite;
-    }
-    .day.completed {
-      background: linear-gradient(135deg, #4ade80, #10b981);
-      color: white;
-    }
-    .day.past {
-      background: linear-gradient(135deg, #fbcfe8, #e9d5ff);
-      color: #374151;
-    }
-    .day:disabled {
-      background: #f3f4f6;
-      color: #9ca3af;
-      cursor: not-allowed;
-    }
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.5);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-    .modal.show { display: flex; }
-    .modal-content {
-      background: white;
-      border-radius: 24px;
-      padding: 32px;
+    
+    .container {
       max-width: 500px;
-      width: 90%;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+      margin: 0 auto;
     }
-    .btn {
+    
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      margin-bottom: 20px;
+    }
+    
+    h1 {
+      text-align: center;
+      color: white;
+      margin-bottom: 20px;
+      font-size: 28px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    
+    h2 {
+      color: #667eea;
+      margin-bottom: 20px;
+      font-size: 22px;
+    }
+    
+    /* 設定画面 */
+    .setting-section {
+      margin-bottom: 25px;
+    }
+    
+    .setting-label {
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #555;
+      font-size: 16px;
+    }
+    
+    .mood-options, .level-options, .count-options {
+      display: grid;
+      gap: 10px;
+    }
+    
+    .mood-options {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .option-btn {
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 16px;
+      text-align: center;
+    }
+    
+    .option-btn:hover {
+      border-color: #667eea;
+      transform: translateY(-2px);
+    }
+    
+    .option-btn.selected {
+      border-color: #667eea;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      font-weight: 600;
+    }
+    
+    .big-button {
       width: 100%;
-      padding: 16px;
+      padding: 18px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
       border: none;
       border-radius: 12px;
-      font-size: 16px;
-      font-weight: bold;
+      font-size: 18px;
+      font-weight: 600;
       cursor: pointer;
-      margin-top: 12px;
+      transition: all 0.3s;
+      margin-top: 10px;
     }
-    .btn-primary {
-      background: linear-gradient(to right, #4ade80, #10b981);
+    
+    .big-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    /* カレンダー */
+    .week-info {
+      text-align: center;
+      color: #666;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .day-cell {
+      aspect-ratio: 1;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 2px solid #e0e0e0;
+      background: white;
+    }
+    
+    .day-cell.today {
+      border-color: #667eea;
+      background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+    }
+    
+    .day-cell.completed {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
-      position: relative;
-      overflow: hidden;
+      border-color: #667eea;
     }
-    .btn-primary:disabled {
-      background: #9ca3af;
+    
+    .day-cell.future {
+      opacity: 0.5;
       cursor: not-allowed;
     }
-    .btn-primary:active:not(:disabled) {
-      transform: scale(0.95);
+    
+    .day-cell:hover:not(.future) {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    .spinner {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255,255,255,0.3);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+    
+    .day-label {
+      font-size: 11px;
+      margin-bottom: 4px;
+      font-weight: 600;
     }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    
+    .day-icon {
+      font-size: 24px;
     }
-    .btn-secondary {
-      background: #e5e7eb;
-      color: #374151;
+    
+    /* アファメーション表示 */
+    .affirmation-card {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      border-radius: 16px;
+      padding: 25px;
+      margin-bottom: 15px;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
-    .record-btn {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      border: none;
-      font-size: 48px;
-      cursor: pointer;
-      margin: 24px auto;
+    
+    .affirmation-text {
+      font-size: 22px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 15px;
+      line-height: 1.5;
+      text-align: center;
+    }
+    
+    .affirmation-japanese {
+      font-size: 16px;
+      color: #666;
+      text-align: center;
+      display: none;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .affirmation-japanese.show {
       display: block;
-      transition: transform 0.2s;
     }
-    .record-btn:hover { transform: scale(1.1); }
-    .record-btn.recording {
-      background: #4b5563;
-      animation: pulse 1s infinite;
+    
+    .toggle-japanese {
+      text-align: center;
+      color: #667eea;
+      cursor: pointer;
+      font-size: 14px;
+      margin-bottom: 15px;
     }
-    .record-btn.ready {
-      background: linear-gradient(135deg, #f87171, #f472b6);
+    
+    .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 15px;
     }
-    input {
-      width: 100%;
+    
+    .action-btn {
       padding: 12px;
-      border: 2px solid #ddd;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 600;
+    }
+    
+    .play-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .record-btn {
+      background: white;
+      border: 2px solid #667eea;
+      color: #667eea;
+    }
+    
+    .record-btn.recording {
+      background: #ff4757;
+      color: white;
+      border-color: #ff4757;
+    }
+    
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 15px;
+    }
+    
+    .pagination-btn {
+      padding: 8px 16px;
+      background: white;
+      border: 2px solid #667eea;
+      border-radius: 8px;
+      color: #667eea;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    
+    .pagination-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    
+    .pagination-info {
+      color: #666;
+      font-weight: 600;
+    }
+    
+    .done-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #5f27cd 0%, #341f97 100%);
+      color: white;
+      border: none;
       border-radius: 12px;
       font-size: 16px;
-      margin-top: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 15px;
     }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.7; }
+    
+    .hidden {
+      display: none;
+    }
+    
+    /* レスポンシブ */
+    @media (max-width: 400px) {
+      .container {
+        padding: 10px;
+      }
+      
+      .card {
+        padding: 20px;
+      }
+      
+      .affirmation-text {
+        font-size: 18px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <div class="title">📅 音読カレンダー ⭐</div>
-      <div id="student-name"></div>
-      <div id="stats"></div>
-      <button onclick="showSettings()" class="btn btn-secondary" style="width: auto; padding: 8px 24px; margin-top: 12px;">⚙️ 設定</button>
-    </div>
+    <h1>🔮 アファメーションカレンダー</h1>
     
-    <div class="calendar">
-      <div class="weekday-header">
-        <div class="weekday">月</div>
-        <div class="weekday">火</div>
-        <div class="weekday">水</div>
-        <div class="weekday">木</div>
-        <div class="weekday">金</div>
-        <div class="weekday">土</div>
-        <div class="weekday">日</div>
+    <!-- 設定画面 -->
+    <div id="settingScreen" class="card">
+      <h2>今週の設定</h2>
+      
+      <div class="setting-section">
+        <div class="setting-label">あなたの名前 👤</div>
+        <input type="text" id="quickNameInput" placeholder="例: 田中太郎" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 12px; font-size: 16px;">
       </div>
-      <div class="grid" id="calendar"></div>
+      
+      <div class="setting-section">
+        <div class="setting-label">今週の気分は？ 🌟</div>
+        <div class="mood-options">
+          <button class="option-btn" data-mood="gentle">
+            🌸 Gentle<br><small>優しく</small>
+          </button>
+          <button class="option-btn" data-mood="uplifting">
+            🚀 Uplifting<br><small>前向きに</small>
+          </button>
+          <button class="option-btn" data-mood="empowering">
+            💪 Empowering<br><small>力強く</small>
+          </button>
+          <button class="option-btn" data-mood="balanced">
+            🌈 Balanced<br><small>ミックス</small>
+          </button>
+        </div>
+      </div>
+      
+      <div class="setting-section">
+        <div class="setting-label">難易度 📊</div>
+        <div class="level-options">
+          <button class="option-btn" data-level="easy">
+            初級<br><small>英検5級/4級</small>
+          </button>
+          <button class="option-btn" data-level="intermediate">
+            中級<br><small>英検3級</small>
+          </button>
+          <button class="option-btn" data-level="advanced">
+            上級<br><small>英検準2級/2級</small>
+          </button>
+        </div>
+      </div>
+      
+      <div class="setting-section">
+        <div class="setting-label">1日何文？ 🔢</div>
+        <div class="count-options">
+          <button class="option-btn" data-count="1">1文</button>
+          <button class="option-btn" data-count="2">2文</button>
+          <button class="option-btn" data-count="3">3文</button>
+        </div>
+      </div>
+      
+      <button class="big-button" onclick="drawCards()">
+        🔮 今週のカードを引く
+      </button>
     </div>
-  </div>
-
-  <div id="recordModal" class="modal">
-    <div class="modal-content">
-      <h2 style="text-align: center; margin-bottom: 24px;"><span id="dayNumber"></span>日目の音読</h2>
-      <button id="recordBtn" class="record-btn ready" onclick="toggleRecording()">🎤</button>
-      <p id="recordStatus" style="text-align: center; color: #6b7280; margin-bottom: 16px;">マイクボタンを押して録音開始</p>
-      <audio id="audioPlayer" controls style="width: 100%; display: none; margin-bottom: 16px;"></audio>
-      <button onclick="submitRecording(this)" class="btn btn-primary">✨ Done! コーチに送信</button>
-      <button onclick="closeRecord()" class="btn btn-secondary">戻る</button>
-    </div>
-  </div>
-
-  <div id="settingsModal" class="modal">
-    <div class="modal-content">
-      <h2 style="text-align: center; margin-bottom: 24px;">⚙️ 設定</h2>
-      <label style="display: block; font-weight: 600; margin-bottom: 8px;">あなたの名前</label>
-      <input type="text" id="nameInput" placeholder="例: 田中太郎">
-      <button onclick="saveSettings()" class="btn btn-primary">保存</button>
-      <button onclick="closeSettings()" class="btn btn-secondary">キャンセル</button>
-    </div>
-  </div>
-
-  <script>
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzRwBx_XrJGvRMC2vAagtknPKD86ME9atrxCbIokJBxJs0K-ZFLBVDihxf3hwop5glf/exec';
     
-    let mediaRecorder = null;
-    let audioChunks = [];
-    let audioBlob = null;
-    let isRecording = false;
-    let selectedDay = null;
-    let completedDays = JSON.parse(localStorage.getItem('completedDays') || '[]');
-    let studentName = localStorage.getItem('studentName') || '';
+    <!-- カレンダー画面 -->
+    <div id="calendarScreen" class="card hidden">
+      <div class="week-info" id="weekInfo"></div>
+      <div class="calendar-grid" id="calendarGrid"></div>
+      <button class="big-button" onclick="changeSettings()">
+        ⚙️ 設定を変更
+      </button>
+    </div>
+    
+    <!-- アファメーション表示 -->
+    <div id="affirmationScreen" class="card hidden">
+      <h2 id="dateTitle"></h2>
+      
+      <div id="affirmationContainer"></div>
+      
+      <button class="done-btn" onclick="markAsComplete()">
+        ✅ 完了して送信
+      </button>
+      
+      <button class="big-button" onclick="backToCalendar()" style="background: white; color: #667eea; border: 2px solid #667eea;">
+        📅 カレンダーに戻る
+      </button>
+    </div>
+  </div>
 
-    const today = new Date();
-    const currentDay = today.getDate();
-    const currentMonth = today.getMonth();
-    const daysInMonth = new Date(today.getFullYear(), currentMonth + 1, 0).getDate();
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+    import { getFirestore, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+
+    // GAS URL（既存の音読カレンダーと同じ）
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzRwBx_XrJGvRMC2vAagtknPKD86ME9atrxCbIokJBxJs0K-ZFLBVDihxf3hwop5glf/exec';
+
+    // Firebase設定（あなたの設定に置き換えてください）
+    const firebaseConfig = {
+      apiKey: "AIzaSyB1Z5kXS----(本体はちゃんと入ってる)",
+      authDomain: "affirmation-calendar-2975e.firebaseapp.com",
+      projectId: "affirmation-calendar-2975e",
+      storageBucket: "affirmation-calendar-2975e.firebasestorage.app",
+      messagingSenderId: "157108172093",
+      appId: "1:157108172093:web:f959a9a01ff4522e368154",
+      measurementId: "G-FY4DEB884Q"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // グローバル変数
+    window.currentSettings = null;
+    window.weeklyData = null;
+    window.currentDayIndex = null;
+    window.currentAffirmationIndex = 0;
+    window.recordings = [];
+    window.mediaRecorder = null;
+    window.studentName = localStorage.getItem('studentName') || '';
+
+    // 初期化
+    window.addEventListener('DOMContentLoaded', init);
 
     function init() {
-      renderCalendar();
-      updateHeader();
-    }
-
-    function updateHeader() {
-      document.getElementById('student-name').innerHTML = studentName ? 
-        `<div style="font-size: 18px; font-weight: 600; color: #9333ea; margin: 8px 0;">${studentName}さんの記録</div>` : '';
-      document.getElementById('stats').innerHTML = `
-        <div style="font-size: 18px; font-weight: bold; color: #9333ea; margin-top: 8px;">
-          🏆 完了日数: ${completedDays.length} / ${daysInMonth}日
-        </div>
-      `;
-    }
-
-    function renderCalendar() {
-      const calendar = document.getElementById('calendar');
-      calendar.innerHTML = '';
+      loadWeeklyData();
+      setupSettingButtons();
+      updateHeaderWithName();
       
-      const firstDay = new Date(today.getFullYear(), currentMonth, 1).getDay();
-      const firstDayAdjusted = firstDay === 0 ? 6 : firstDay - 1;
-      
-      for (let i = 0; i < firstDayAdjusted; i++) {
-        const empty = document.createElement('div');
-        empty.className = 'empty-day';
-        calendar.appendChild(empty);
+      // 名前フィールドにデフォルト値をセット
+      const quickNameInput = document.getElementById('quickNameInput');
+      if (quickNameInput && window.studentName) {
+        quickNameInput.value = window.studentName;
       }
-      
-      for (let day = 1; day <= daysInMonth; day++) {
-        const btn = document.createElement('button');
-        btn.className = 'day';
-        btn.textContent = day;
+    }
+
+    function updateHeaderWithName() {
+      const header = document.querySelector('.container h1');
+      if (window.studentName) {
+        header.textContent = `🔮 ${window.studentName}さんのアファメーション`;
+      }
+    }
+
+    function loadWeeklyData() {
+      const stored = localStorage.getItem('weeklyAffirmations');
+      if (stored) {
+        window.weeklyData = JSON.parse(stored);
+        const weekStart = new Date(window.weeklyData.weekStartDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
         
-        if (completedDays.includes(day)) {
-          btn.className += ' completed';
-          btn.innerHTML = day + '<br>✓';
-        } else if (day === currentDay) {
-          btn.className += ' today';
-          btn.innerHTML = day + '<br>🌟';
-        } else if (day < currentDay) {
-          btn.className += ' past';
+        // 週が終わっているかチェック
+        const daysDiff = Math.floor((today - weekStart) / (1000 * 60 * 60 * 24));
+        if (daysDiff >= 7 || daysDiff < 0) {
+          // 週が終わった
+          showSettings();
         } else {
-          btn.disabled = true;
-        }
-        
-        btn.onclick = () => {
-          if (day <= currentDay) {
-            openRecord(day);
-          }
-        };
-        calendar.appendChild(btn);
-      }
-    }
-
-    function openRecord(day) {
-      selectedDay = day;
-      document.getElementById('dayNumber').textContent = day;
-      document.getElementById('recordModal').classList.add('show');
-      document.getElementById('audioPlayer').style.display = 'none';
-    }
-
-    function closeRecord() {
-      document.getElementById('recordModal').classList.remove('show');
-      if (isRecording) toggleRecording();
-      audioBlob = null;
-      audioChunks = [];
-    }
-
-    async function toggleRecording() {
-      const btn = document.getElementById('recordBtn');
-      const status = document.getElementById('recordStatus');
-      
-      if (!isRecording) {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          mediaRecorder = new MediaRecorder(stream);
-          audioChunks = [];
-          
-          mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
-          mediaRecorder.onstop = () => {
-            audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-            const url = URL.createObjectURL(audioBlob);
-            const player = document.getElementById('audioPlayer');
-            player.src = url;
-            player.style.display = 'block';
-            stream.getTracks().forEach(track => track.stop());
-          };
-          
-          mediaRecorder.start();
-          isRecording = true;
-          btn.textContent = '⏹️';
-          btn.className = 'record-btn recording';
-          status.textContent = '録音中... もう一度押して停止';
-        } catch (err) {
-          alert('マイクへのアクセスが必要です');
+          showCalendar();
         }
       } else {
-        mediaRecorder.stop();
-        isRecording = false;
-        btn.textContent = '🎤';
-        btn.className = 'record-btn ready';
-        status.textContent = '録音完了！再生して確認できます';
+        showSettings();
       }
     }
 
-    async function submitRecording(doneBtn) {
-      if (!studentName) {
-        alert('設定から名前を入力してください');
-        showSettings();
+    function setupSettingButtons() {
+      // 気分選択
+      document.querySelectorAll('[data-mood]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('[data-mood]').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+        });
+      });
+
+      // 難易度選択
+      document.querySelectorAll('[data-level]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('[data-level]').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+        });
+      });
+
+      // 文数選択
+      document.querySelectorAll('[data-count]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('[data-count]').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+        });
+      });
+    }
+
+    window.drawCards = async function() {
+      const name = document.getElementById('quickNameInput').value.trim();
+      const mood = document.querySelector('[data-mood].selected')?.dataset.mood;
+      const level = document.querySelector('[data-level].selected')?.dataset.level;
+      const count = parseInt(document.querySelector('[data-count].selected')?.dataset.count);
+
+      if (!name) {
+        alert('名前を入力してください');
         return;
       }
 
-      if (!audioBlob) {
-        alert('録音してください');
+      if (!mood || !level || !count) {
+        alert('すべての項目を選択してください');
+        return;
+      }
+
+      // 名前を保存
+      window.studentName = name;
+      localStorage.setItem('studentName', name);
+      updateHeaderWithName();
+
+      // Firebaseからデータ取得
+      try {
+        const affirmationsRef = collection(db, 'affirmations');
+        let q;
+        
+        if (mood === 'balanced') {
+          // バランスの場合は全ムード
+          q = query(affirmationsRef, where('level', '==', level));
+        } else {
+          // 特定のムード
+          q = query(
+            affirmationsRef,
+            where('level', '==', level),
+            where('moods', 'array-contains', mood)
+          );
+        }
+
+        const snapshot = await getDocs(q);
+        const allAffirmations = snapshot.docs.map(doc => doc.data());
+
+        if (allAffirmations.length < count * 7) {
+          alert('条件に合うアファメーションが不足しています');
+          return;
+        }
+
+        // 7日分をランダム抽出（重複なし）
+        const shuffled = allAffirmations.sort(() => Math.random() - 0.5);
+        const weeklyCards = [];
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        for (let i = 0; i < 7; i++) {
+          const date = new Date(today);
+          date.setDate(date.getDate() + i);
+          
+          weeklyCards.push({
+            date: date.toISOString().split('T')[0],
+            dayOfWeek: i,
+            affirmations: shuffled.slice(i * count, (i + 1) * count),
+            completed: false
+          });
+        }
+
+        // LocalStorageに保存
+        window.weeklyData = {
+          weekStartDate: today.toISOString().split('T')[0],
+          settings: { mood, level, sentencesPerDay: count },
+          weeklyCards: weeklyCards
+        };
+
+        localStorage.setItem('weeklyAffirmations', JSON.stringify(window.weeklyData));
+        
+        showCalendar();
+      } catch (error) {
+        console.error('Error:', error);
+        alert('データの取得に失敗しました: ' + error.message);
+      }
+    };
+
+    function showSettings() {
+      document.getElementById('settingScreen').classList.remove('hidden');
+      document.getElementById('calendarScreen').classList.add('hidden');
+      document.getElementById('affirmationScreen').classList.add('hidden');
+    }
+
+    function showSettings() {
+      document.getElementById('settingScreen').classList.remove('hidden');
+      document.getElementById('calendarScreen').classList.add('hidden');
+      document.getElementById('affirmationScreen').classList.add('hidden');
+    }
+
+    function showCalendar() {
+      document.getElementById('settingScreen').classList.add('hidden');
+      document.getElementById('calendarScreen').classList.remove('hidden');
+      document.getElementById('affirmationScreen').classList.add('hidden');
+
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      const weekInfo = document.getElementById('weekInfo');
+      const grid = document.getElementById('calendarGrid');
+      
+      const startDate = new Date(window.weeklyData.weekStartDate);
+      const endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + 6);
+      
+      weekInfo.textContent = `${formatDate(startDate)} 〜 ${formatDate(endDate)}`;
+      
+      grid.innerHTML = '';
+      const dayLabels = ['月', '火', '水', '木', '金', '土', '日'];
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      window.weeklyData.weeklyCards.forEach((day, index) => {
+        const dayDate = new Date(day.date);
+        const cell = document.createElement('div');
+        cell.className = 'day-cell';
+        
+        if (dayDate > today) {
+          cell.classList.add('future');
+        } else if (dayDate.toDateString() === today.toDateString()) {
+          cell.classList.add('today');
+        }
+        
+        if (day.completed) {
+          cell.classList.add('completed');
+        }
+
+        cell.innerHTML = `
+          <div class="day-label">${dayLabels[index]}</div>
+          <div class="day-icon">${day.completed ? '✅' : '🔮'}</div>
+        `;
+
+        if (dayDate <= today) {
+          cell.addEventListener('click', () => showAffirmation(index));
+        }
+
+        grid.appendChild(cell);
+      });
+    }
+
+    function showAffirmation(dayIndex) {
+      window.currentDayIndex = dayIndex;
+      window.currentAffirmationIndex = 0;
+      window.recordings = [];
+
+      document.getElementById('settingScreen').classList.add('hidden');
+      document.getElementById('calendarScreen').classList.add('hidden');
+      document.getElementById('affirmationScreen').classList.remove('hidden');
+
+      const day = window.weeklyData.weeklyCards[dayIndex];
+      const date = new Date(day.date);
+      document.getElementById('dateTitle').textContent = formatDateLong(date);
+
+      renderAffirmations(day.affirmations);
+    }
+
+    function renderAffirmations(affirmations) {
+      const container = document.getElementById('affirmationContainer');
+      container.innerHTML = '';
+
+      affirmations.forEach((aff, index) => {
+        const card = document.createElement('div');
+        card.innerHTML = `
+          <div class="affirmation-card">
+            <div class="affirmation-text">${aff.text}</div>
+            <div class="toggle-japanese" onclick="toggleJapanese(${index})">
+              📖 日本語を見る ▼
+            </div>
+            <div class="affirmation-japanese" id="japanese-${index}">
+              ${aff.japanese}
+            </div>
+          </div>
+          
+          <div class="button-group">
+            <button class="action-btn play-btn" onclick="playAudio('${aff.modelAudioUrl}')">
+              🔊 お手本
+            </button>
+            <button class="action-btn record-btn" id="record-${index}" onclick="toggleRecord(${index})">
+              🎤 録音
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      if (affirmations.length > 1) {
+        const pagination = document.createElement('div');
+        pagination.className = 'pagination';
+        pagination.innerHTML = `
+          <button class="pagination-btn" onclick="prevAffirmation()" id="prevBtn">← 前へ</button>
+          <div class="pagination-info">
+            <span id="currentNum">1</span> / ${affirmations.length}
+          </div>
+          <button class="pagination-btn" onclick="nextAffirmation()" id="nextBtn">次へ →</button>
+        `;
+        container.appendChild(pagination);
+      }
+    }
+
+    window.toggleJapanese = function(index) {
+      const elem = document.getElementById(`japanese-${index}`);
+      elem.classList.toggle('show');
+    };
+
+    window.playAudio = function(url) {
+      const audio = new Audio(url);
+      audio.play();
+    };
+
+    window.toggleRecord = async function(index) {
+      const btn = document.getElementById(`record-${index}`);
+      
+      if (window.mediaRecorder && window.mediaRecorder.state === 'recording') {
+        window.mediaRecorder.stop();
+        btn.classList.remove('recording');
+        btn.textContent = '🎤 録音';
+      } else {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          window.mediaRecorder = new MediaRecorder(stream);
+          const chunks = [];
+
+          window.mediaRecorder.ondataavailable = e => chunks.push(e.data);
+          window.mediaRecorder.onstop = () => {
+            const blob = new Blob(chunks, { type: 'audio/webm' });
+            window.recordings[index] = blob;
+            stream.getTracks().forEach(track => track.stop());
+          };
+
+          window.mediaRecorder.start();
+          btn.classList.add('recording');
+          btn.textContent = '⏹️ 停止';
+        } catch (error) {
+          alert('マイクへのアクセスが拒否されました');
+        }
+      }
+    };
+
+    window.markAsComplete = async function(doneBtn) {
+      // 名前チェック
+      if (!window.studentName) {
+        alert('設定から名前を入力してください');
+        showStudentSettings();
+        return;
+      }
+
+      // 録音チェック（少なくとも1つ録音が必要）
+      if (window.recordings.length === 0) {
+        alert('少なくとも1文は録音してください');
         return;
       }
 
@@ -358,66 +754,111 @@
       doneBtn.innerHTML = '<span class="spinner"></span> 送信中...';
       doneBtn.style.background = '#9ca3af';
 
-      const reader = new FileReader();
-      reader.readAsDataURL(audioBlob);
-      
-      reader.onloadend = async () => {
-        try {
-          const sendPromise = fetch(GAS_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify({
-              audioData: reader.result,
-              studentName: studentName,
-              day: selectedDay,
-            }),
-          });
-          
-          const delayPromise = new Promise(resolve => setTimeout(resolve, 1000));
-          await Promise.all([sendPromise, delayPromise]);
-
-          alert(`✨ ${studentName}さんの${selectedDay}日目の音読を送信しました！`);
-          
-          if (!completedDays.includes(selectedDay)) {
-            completedDays.push(selectedDay);
-            localStorage.setItem('completedDays', JSON.stringify(completedDays));
+      try {
+        const day = window.weeklyData.weeklyCards[window.currentDayIndex];
+        
+        // 録音データを送信
+        for (let i = 0; i < window.recordings.length; i++) {
+          if (window.recordings[i]) {
+            const reader = new FileReader();
+            const audioBlob = window.recordings[i];
+            
+            await new Promise((resolve, reject) => {
+              reader.readAsDataURL(audioBlob);
+              reader.onloadend = async () => {
+                try {
+                  await fetch(GAS_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({
+                      audioData: reader.result,
+                      studentName: window.studentName,
+                      day: day.date,
+                      affirmation: day.affirmations[i].text,
+                      japanese: day.affirmations[i].japanese
+                    }),
+                  });
+                  resolve();
+                } catch (err) {
+                  reject(err);
+                }
+              };
+            });
           }
-          
-          closeRecord();
-          renderCalendar();
-          updateHeader();
-        } catch (err) {
-          alert('送信に失敗しました');
-          doneBtn.disabled = false;
-          doneBtn.innerHTML = originalText;
-          doneBtn.removeAttribute('style'); // ← ここを修正！
         }
-      };
-    }
 
-    function showSettings() {
-      document.getElementById('nameInput').value = studentName;
+        // 最低1秒待つ
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // 完了記録
+        day.completed = true;
+        localStorage.setItem('weeklyAffirmations', JSON.stringify(window.weeklyData));
+        
+        alert(`✨ ${window.studentName}さんの音読を送信しました！`);
+        showCalendar();
+        
+      } catch (err) {
+        console.error('Error:', err);
+        alert('送信に失敗しました');
+        doneBtn.disabled = false;
+        doneBtn.innerHTML = originalText;
+        doneBtn.removeAttribute('style');
+      }
+    };
+
+    window.submitRecording = window.markAsComplete;
+
+    window.showStudentSettings = function() {
+      document.getElementById('nameInput').value = window.studentName;
+      document.getElementById('settingsModal').classList.remove('hidden');
       document.getElementById('settingsModal').classList.add('show');
-    }
+    };
 
-    function closeSettings() {
+    window.closeSettingsModal = function() {
       document.getElementById('settingsModal').classList.remove('show');
-    }
+      document.getElementById('settingsModal').classList.add('hidden');
+    };
 
-    function saveSettings() {
+    window.saveStudentName = function() {
       const name = document.getElementById('nameInput').value.trim();
       if (name) {
-        studentName = name;
+        window.studentName = name;
         localStorage.setItem('studentName', name);
-        updateHeader();
-        closeSettings();
+        updateHeaderWithName();
+        closeSettingsModal();
         alert('設定を保存しました！');
       } else {
         alert('名前を入力してください');
       }
+    };
+
+    window.backToCalendar = function() {
+      showCalendar();
+    };
+
+    window.changeSettings = function() {
+      const confirmed = confirm('設定を変更すると、今週のカードがリセットされます。\n本当に変更しますか？');
+      if (confirmed) {
+        localStorage.removeItem('weeklyAffirmations');
+        window.weeklyData = null;
+        showSettingsScreen();
+      }
+    };
+
+    function showSettingsScreen() {
+      document.getElementById('settingScreen').classList.remove('hidden');
+      document.getElementById('calendarScreen').classList.add('hidden');
+      document.getElementById('affirmationScreen').classList.add('hidden');
     }
 
-    init();
+    function formatDate(date) {
+      return `${date.getMonth() + 1}/${date.getDate()}`;
+    }
+
+    function formatDateLong(date) {
+      const days = ['日', '月', '火', '水', '木', '金', '土'];
+      return `${date.getMonth() + 1}月${date.getDate()}日（${days[date.getDay()]}）`;
+    }
   </script>
 </body>
 </html>
