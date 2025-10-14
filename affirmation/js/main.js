@@ -633,16 +633,6 @@ function getLevelName(level) {
   return names[level] || '';
 }
 
-// グローバルに公開（既存の行を探して、これに置き換え）
-// 既存の行（そのまま）
-window.continueCurrentLevel = continueCurrentLevel;
-window.changeLevel = changeLevel;
-window.resetAllProgress = resetAllProgress;
-window.closeCompletionModal = closeCompletionModal;
-window.showWeekSummary = showWeekSummary;
-window.viewStatsFromSummary = viewStatsFromSummary;
-window.startNewWeek = startNewWeek;
-
 // 完了サマリーを表示
 function showCompletionSummary() {
   const day = window.appState.weeklyData.weeklyCards[window.appState.currentDayIndex];
@@ -668,6 +658,10 @@ function closeCompletionSummary() {
   showCalendar();
 }
 
+// ==============================================
+// シェア機能（修正版 - LINE/Instagram削除、画像DL追加）
+// ==============================================
+
 // 完了サマリーからシェアモーダルを開く
 function openShareModalFromCompletion() {
   const modal = document.getElementById('shareModal');
@@ -686,7 +680,7 @@ function closeShareModal() {
   modal.style.display = 'none';
 }
 
-// 各プラットフォームへのシェア
+// 各プラットフォームへのシェア（修正版）
 async function handleSharePlatform(platform) {
   const day = window.appState.weeklyData.weeklyCards[window.appState.currentDayIndex];
   
@@ -696,7 +690,7 @@ async function handleSharePlatform(platform) {
   ).join('\n\n');
   
   // シェアテキスト
-  const shareText = `今日のアファメーション 🌸\n\n${affirmationTexts}\n\n#音読カレンダー #英語学習`;
+  const shareText = `✨ 今日のアファメーション\n\n${affirmationTexts}\n\n#音読カレンダー #英語学習`;
   const shareUrl = window.location.href;
   
   switch (platform) {
@@ -704,13 +698,10 @@ async function handleSharePlatform(platform) {
       shareToTwitter(shareText, shareUrl);
       break;
     case 'facebook':
-      shareToFacebook(shareUrl);
+      shareToFacebook(shareUrl, shareText);
       break;
-    case 'line':
-      shareToLine(shareText, shareUrl);
-      break;
-    case 'instagram':
-      await shareToInstagram(day.affirmations);
+    case 'download':
+      await downloadAffirmationImage(day.affirmations);
       break;
     case 'copy':
       await copyToClipboard(shareText + '\n' + shareUrl);
@@ -718,117 +709,6 @@ async function handleSharePlatform(platform) {
   }
   
   closeShareModal();
-}
-
-// Twitterにシェア
-function shareToTwitter(text, url) {
-  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
-  window.open(twitterUrl, '_blank', 'width=600,height=400');
-}
-
-// Facebookにシェア
-function shareToFacebook(url) {
-  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-  window.open(facebookUrl, '_blank', 'width=600,height=400');
-}
-
-// LINEにシェア
-function shareToLine(text, url) {
-  const lineUrl = `https://line.me/R/msg/text/?${encodeURIComponent(text + '\n' + url)}`;
-  window.open(lineUrl, '_blank');
-}
-
-// Instagramにシェア（画像生成）
-async function shareToInstagram(affirmations) {
-  try {
-    // 画像を生成
-    const imageBlob = await generateShareImage(affirmations);
-    
-    // Web Share API で画像を共有
-    if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([imageBlob], 'affirmation.png', { type: 'image/png' })] })) {
-      const file = new File([imageBlob], 'affirmation.png', { type: 'image/png' });
-      await navigator.share({
-        files: [file],
-        title: '今日のアファメーション',
-        text: '音読カレンダー'
-      });
-    } else {
-      // フォールバック：画像をダウンロード
-      const url = URL.createObjectURL(imageBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'affirmation.png';
-      a.click();
-      URL.revokeObjectURL(url);
-      alert('📷 画像を保存しました！\nInstagramアプリから投稿してください。');
-    }
-  } catch (error) {
-    console.error('Instagram シェアエラー:', error);
-    alert('画像の生成に失敗しました');
-  }
-}
-
-// シェア用画像を生成（複数のアファメーションに対応）
-async function generateShareImage(affirmations) {
-  const canvas = document.getElementById('shareCanvas');
-  const ctx = canvas.getContext('2d');
-  
-  // Instagramストーリーサイズ（9:16）
-  canvas.width = 1080;
-  canvas.height = 1920;
-  
-  // グラデーション背景
-  const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  gradient.addColorStop(0, '#8b5cf6');
-  gradient.addColorStop(0.5, '#a78bfa');
-  gradient.addColorStop(1, '#c4b5fd');
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
-  // アプリ名
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 56px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('音読カレンダー 📚', canvas.width / 2, 300);
-  
-  // 白い枠の高さを動的に調整
-  const affCount = affirmations.length;
-  const boxHeight = 200 + (affCount * 200);
-  const boxY = (canvas.height - boxHeight) / 2;
-  
-  // 白い枠
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-  ctx.roundRect(80, boxY, canvas.width - 160, boxHeight, 40);
-  ctx.fill();
-  
-  // 各アファメーションを描画
-  let currentY = boxY + 100;
-  affirmations.forEach((aff, index) => {
-    // 英文
-    ctx.fillStyle = '#1f2937';
-    ctx.font = 'bold 48px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    ctx.textAlign = 'center';
-    
-    const text = affirmations.length > 1 ? `${index + 1}. ${aff.text}` : aff.text;
-    ctx.fillText(text, canvas.width / 2, currentY);
-    
-    // 日本語訳
-    ctx.fillStyle = '#6b7280';
-    ctx.font = '36px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    ctx.fillText(`（${aff.japanese}）`, canvas.width / 2, currentY + 60);
-    
-    currentY += 200;
-  });
-  
-  // ハッシュタグ
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-  ctx.font = '40px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-  ctx.fillText('#音読カレンダー #英語学習', canvas.width / 2, canvas.height - 200);
-  
-  // Canvasを画像に変換
-  return new Promise((resolve) => {
-    canvas.toBlob(resolve, 'image/png');
-  });
 }
 
 // クリップボードにコピー
@@ -861,7 +741,204 @@ function fallbackCopy(text) {
   document.body.removeChild(textarea);
 }
 
+// Twitterにシェア
+function shareToTwitter(text, url) {
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+  window.open(twitterUrl, '_blank', 'width=600,height=400');
+}
+
+// Facebookにシェア
+function shareToFacebook(url, text) {
+  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`;
+  window.open(facebookUrl, '_blank', 'width=600,height=400');
+}
+
+// レポート画像をダウンロード（NEW！）
+async function downloadAffirmationImage(affirmations) {
+  try {
+    // 統計データを取得
+    const stats = await getStatsForImage();
+    
+    // Canvas作成
+    const canvas = document.createElement('canvas');
+    canvas.width = 1080;
+    canvas.height = 1080;
+    const ctx = canvas.getContext('2d');
+
+    // 背景（グラデーション）
+    const gradient = ctx.createLinearGradient(0, 0, 0, 1080);
+    gradient.addColorStop(0, '#667eea');
+    gradient.addColorStop(1, '#764ba2');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 1080, 1080);
+
+    // 白い半透明のカード
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+    roundRect(ctx, 60, 60, 960, 960, 30);
+    ctx.fill();
+
+    // タイトル
+    ctx.fillStyle = '#4a148c';
+    ctx.font = 'bold 50px "Arial", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('✨ Today\'s Affirmation', 540, 150);
+
+    // 日付
+    ctx.fillStyle = '#7b1fa2';
+    ctx.font = '30px "Arial", sans-serif';
+    const date = new Date();
+    const dateStr = `${date.getMonth() + 1}/${date.getDate()} (${['日', '月', '火', '水', '木', '金', '土'][date.getDay()]})`;
+    ctx.fillText(dateStr, 540, 200);
+
+    // 区切り線
+    ctx.strokeStyle = '#e1bee7';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(150, 230);
+    ctx.lineTo(930, 230);
+    ctx.stroke();
+
+    // アファメーション（英語 + 日本語）
+    let yPos = 280;
+    affirmations.forEach((aff, index) => {
+      // 英語
+      ctx.fillStyle = '#4a148c';
+      ctx.font = 'bold 38px "Arial", sans-serif';
+      ctx.textAlign = 'center';
+      
+      const prefix = affirmations.length > 1 ? `${index + 1}. ` : '';
+      const engLines = wrapText(ctx, prefix + aff.text, 850);
+      engLines.forEach(line => {
+        ctx.fillText(line, 540, yPos);
+        yPos += 50;
+      });
+
+      // 日本語
+      ctx.fillStyle = '#7b1fa2';
+      ctx.font = '28px "Arial", sans-serif';
+      const jpLines = wrapText(ctx, aff.japanese, 850);
+      jpLines.forEach(line => {
+        ctx.fillText(line, 540, yPos);
+        yPos += 40;
+      });
+      
+      yPos += 20; // 次の文との間隔
+    });
+
+    // 統計情報セクション（背景）
+    const statsY = Math.min(yPos + 20, 650);
+    const statsHeight = 250;
+    ctx.fillStyle = '#f3e5f5';
+    roundRect(ctx, 150, statsY, 780, statsHeight, 20);
+    ctx.fill();
+
+    // 統計タイトル
+    ctx.fillStyle = '#4a148c';
+    ctx.font = 'bold 35px "Arial", sans-serif';
+    ctx.fillText('📊 My Progress', 540, statsY + 60);
+
+    // 統計データ
+    ctx.font = '28px "Arial", sans-serif';
+    ctx.fillStyle = '#6a1b9a';
+    ctx.textAlign = 'left';
+
+    const statsList = [
+      `🔥 連続記録：${stats.currentStreak}日`,
+      `✅ 今週の完了率：${stats.weekCompletion}%`,
+      `📅 累計日数：${stats.totalDays}日`
+    ];
+
+    let statY = statsY + 110;
+    statsList.forEach(stat => {
+      ctx.fillText(stat, 200, statY);
+      statY += 50;
+    });
+
+    // ロゴ・URL
+    ctx.fillStyle = '#9c27b0';
+    ctx.font = '24px "Arial", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('🔮 Affirmation Calendar', 540, 1020);
+
+    // ダウンロード
+    canvas.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `affirmation-${new Date().toISOString().split('T')[0]}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      alert('📸 画像をダウンロードしました！');
+    });
+  } catch (error) {
+    console.error('画像生成エラー:', error);
+    alert('画像の生成に失敗しました');
+  }
+}
+
+// 画像用の統計データを取得
+async function getStatsForImage() {
+  try {
+    // stats.js の関数を使用
+    if (window.calculateStats) {
+      return await window.calculateStats();
+    }
+    
+    // フォールバック
+    return {
+      currentStreak: 1,
+      weekCompletion: 0,
+      totalDays: 1
+    };
+  } catch (error) {
+    console.error('統計取得エラー:', error);
+    return {
+      currentStreak: 0,
+      weekCompletion: 0,
+      totalDays: 0
+    };
+  }
+}
+
+// テキストを折り返す関数
+function wrapText(ctx, text, maxWidth) {
+  const words = text.split(' ');
+  const lines = [];
+  let currentLine = words[0] || '';
+
+  for (let i = 1; i < words.length; i++) {
+    const word = words[i];
+    const width = ctx.measureText(currentLine + ' ' + word).width;
+    if (width < maxWidth) {
+      currentLine += ' ' + word;
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
+    }
+  }
+  lines.push(currentLine);
+  return lines;
+}
+
+// roundRect のポリフィル（Canvas API）
+function roundRect(ctx, x, y, w, h, r) {
+  if (w < 2 * r) r = w / 2;
+  if (h < 2 * r) r = h / 2;
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+  return ctx;
+}
+
 // グローバルに公開
+window.showWeekSummary = showWeekSummary;
+window.viewStatsFromSummary = viewStatsFromSummary;
+window.startNewWeek = startNewWeek;
 window.showCompletionSummary = showCompletionSummary;
 window.closeCompletionSummary = closeCompletionSummary;
 window.openShareModalFromCompletion = openShareModalFromCompletion;
