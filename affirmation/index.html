@@ -167,5 +167,63 @@
   <script src="js/calendar.js"></script>
   <script src="js/affirmation.js"></script>
   <script src="js/main.js"></script>
+
+  <!-- 完了モーダル -->
+  <div id="completionSummaryModal" class="share-modal-overlay" style="display: none;">
+    <div class="completion-summary-modal">
+      <div class="completion-icon">✨</div>
+      <h2>今日の記録完了！</h2>
+      <p class="completion-subtitle">素晴らしい！</p>
+      
+      <div class="completed-affirmations" id="completedAffirmationsList">
+        <!-- ここに今日のアファメーションリストが入る -->
+      </div>
+      
+      <div class="completion-buttons">
+        <button class="modal-btn primary" onclick="openShareModalFromCompletion()">
+          📤 シェアする
+        </button>
+        <button class="modal-btn secondary" onclick="closeCompletionSummary()">
+          ✅ カレンダーに戻る
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- シェアモーダル -->
+  <div id="shareModal" class="share-modal-overlay" style="display: none;">
+    <div class="share-modal">
+      <h3 class="share-modal-title">シェアする</h3>
+      <div class="share-buttons">
+        <button class="share-option-btn" data-platform="twitter">
+          <span class="share-icon">🐦</span>
+          <span class="share-label">X (Twitter)</span>
+        </button>
+        <button class="share-option-btn" data-platform="facebook">
+          <span class="share-icon">📘</span>
+          <span class="share-label">Facebook</span>
+        </button>
+        <button class="share-option-btn" data-platform="line">
+          <span class="share-icon">💬</span>
+          <span class="share-label">LINE</span>
+        </button>
+        <button class="share-option-btn" data-platform="instagram">
+          <span class="share-icon">📷</span>
+          <span class="share-label">Instagram</span>
+        </button>
+        <button class="share-option-btn" data-platform="copy">
+          <span class="share-icon">📋</span>
+          <span class="share-label">コピー</span>
+        </button>
+      </div>
+      <button class="share-modal-close" onclick="closeShareModal()">キャンセル</button>
+    </div>
+  </div>
+
+  <!-- 画像生成用のCanvas（非表示） -->
+  <canvas id="shareCanvas" style="display: none;"></canvas>
+
+</body>
+
 </body>
 </html>

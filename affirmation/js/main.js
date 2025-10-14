@@ -443,8 +443,10 @@ async function handleComplete() {
   
   try {
     await window.uploadRecordingsToFirebase();
-    alert('✨ 送信しました！');
-    showCalendar();
+    
+    // 成功したら完了サマリーを表示
+    showCompletionSummary();
+    
   } catch (error) {
     console.error('送信エラー:', error);
     alert('送信に失敗しました');
@@ -640,3 +642,227 @@ window.closeCompletionModal = closeCompletionModal;
 window.showWeekSummary = showWeekSummary;
 window.viewStatsFromSummary = viewStatsFromSummary;
 window.startNewWeek = startNewWeek;
+
+// 完了サマリーを表示
+function showCompletionSummary() {
+  const day = window.appState.weeklyData.weeklyCards[window.appState.currentDayIndex];
+  
+  // 今日のアファメーションリストを生成
+  const listHTML = day.affirmations.map(aff => `
+    <div class="completed-aff-item">
+      <div class="aff-bullet">✓</div>
+      <div class="aff-content">
+        <div class="aff-text">${aff.text}</div>
+        <div class="aff-japanese">${aff.japanese}</div>
+      </div>
+    </div>
+  `).join('');
+  
+  document.getElementById('completedAffirmationsList').innerHTML = listHTML;
+  document.getElementById('completionSummaryModal').style.display = 'flex';
+}
+
+// 完了サマリーを閉じる
+function closeCompletionSummary() {
+  document.getElementById('completionSummaryModal').style.display = 'none';
+  showCalendar();
+}
+
+// 完了サマリーからシェアモーダルを開く
+function openShareModalFromCompletion() {
+  const modal = document.getElementById('shareModal');
+  modal.style.display = 'flex';
+  
+  // SNS選択ボタンにイベントリスナーを設定
+  const shareButtons = document.querySelectorAll('.share-option-btn');
+  shareButtons.forEach(btn => {
+    btn.onclick = () => handleSharePlatform(btn.dataset.platform);
+  });
+}
+
+// シェアモーダルを閉じる
+function closeShareModal() {
+  const modal = document.getElementById('shareModal');
+  modal.style.display = 'none';
+}
+
+// 各プラットフォームへのシェア
+async function handleSharePlatform(platform) {
+  const day = window.appState.weeklyData.weeklyCards[window.appState.currentDayIndex];
+  
+  // 今日の全アファメーションをテキストに
+  const affirmationTexts = day.affirmations.map(aff => 
+    `"${aff.text}"\n（${aff.japanese}）`
+  ).join('\n\n');
+  
+  // シェアテキスト
+  const shareText = `今日のアファメーション 🌸\n\n${affirmationTexts}\n\n#音読カレンダー #英語学習`;
+  const shareUrl = window.location.href;
+  
+  switch (platform) {
+    case 'twitter':
+      shareToTwitter(shareText, shareUrl);
+      break;
+    case 'facebook':
+      shareToFacebook(shareUrl);
+      break;
+    case 'line':
+      shareToLine(shareText, shareUrl);
+      break;
+    case 'instagram':
+      await shareToInstagram(day.affirmations);
+      break;
+    case 'copy':
+      await copyToClipboard(shareText + '\n' + shareUrl);
+      break;
+  }
+  
+  closeShareModal();
+}
+
+// Twitterにシェア
+function shareToTwitter(text, url) {
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+  window.open(twitterUrl, '_blank', 'width=600,height=400');
+}
+
+// Facebookにシェア
+function shareToFacebook(url) {
+  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+  window.open(facebookUrl, '_blank', 'width=600,height=400');
+}
+
+// LINEにシェア
+function shareToLine(text, url) {
+  const lineUrl = `https://line.me/R/msg/text/?${encodeURIComponent(text + '\n' + url)}`;
+  window.open(lineUrl, '_blank');
+}
+
+// Instagramにシェア（画像生成）
+async function shareToInstagram(affirmations) {
+  try {
+    // 画像を生成
+    const imageBlob = await generateShareImage(affirmations);
+    
+    // Web Share API で画像を共有
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([imageBlob], 'affirmation.png', { type: 'image/png' })] })) {
+      const file = new File([imageBlob], 'affirmation.png', { type: 'image/png' });
+      await navigator.share({
+        files: [file],
+        title: '今日のアファメーション',
+        text: '音読カレンダー'
+      });
+    } else {
+      // フォールバック：画像をダウンロード
+      const url = URL.createObjectURL(imageBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'affirmation.png';
+      a.click();
+      URL.revokeObjectURL(url);
+      alert('📷 画像を保存しました！\nInstagramアプリから投稿してください。');
+    }
+  } catch (error) {
+    console.error('Instagram シェアエラー:', error);
+    alert('画像の生成に失敗しました');
+  }
+}
+
+// シェア用画像を生成（複数のアファメーションに対応）
+async function generateShareImage(affirmations) {
+  const canvas = document.getElementById('shareCanvas');
+  const ctx = canvas.getContext('2d');
+  
+  // Instagramストーリーサイズ（9:16）
+  canvas.width = 1080;
+  canvas.height = 1920;
+  
+  // グラデーション背景
+  const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  gradient.addColorStop(0, '#8b5cf6');
+  gradient.addColorStop(0.5, '#a78bfa');
+  gradient.addColorStop(1, '#c4b5fd');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // アプリ名
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 56px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('音読カレンダー 📚', canvas.width / 2, 300);
+  
+  // 白い枠の高さを動的に調整
+  const affCount = affirmations.length;
+  const boxHeight = 200 + (affCount * 200);
+  const boxY = (canvas.height - boxHeight) / 2;
+  
+  // 白い枠
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+  ctx.roundRect(80, boxY, canvas.width - 160, boxHeight, 40);
+  ctx.fill();
+  
+  // 各アファメーションを描画
+  let currentY = boxY + 100;
+  affirmations.forEach((aff, index) => {
+    // 英文
+    ctx.fillStyle = '#1f2937';
+    ctx.font = 'bold 48px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+    ctx.textAlign = 'center';
+    
+    const text = affirmations.length > 1 ? `${index + 1}. ${aff.text}` : aff.text;
+    ctx.fillText(text, canvas.width / 2, currentY);
+    
+    // 日本語訳
+    ctx.fillStyle = '#6b7280';
+    ctx.font = '36px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+    ctx.fillText(`（${aff.japanese}）`, canvas.width / 2, currentY + 60);
+    
+    currentY += 200;
+  });
+  
+  // ハッシュタグ
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+  ctx.font = '40px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+  ctx.fillText('#音読カレンダー #英語学習', canvas.width / 2, canvas.height - 200);
+  
+  // Canvasを画像に変換
+  return new Promise((resolve) => {
+    canvas.toBlob(resolve, 'image/png');
+  });
+}
+
+// クリップボードにコピー
+async function copyToClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    alert('📋 クリップボードにコピーしました！');
+  } catch (error) {
+    console.error('コピーエラー:', error);
+    fallbackCopy(text);
+  }
+}
+
+// フォールバック：コピー
+function fallbackCopy(text) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  
+  try {
+    document.execCommand('copy');
+    alert('📋 クリップボードにコピーしました！');
+  } catch (error) {
+    alert('コピーに失敗しました');
+  }
+  
+  document.body.removeChild(textarea);
+}
+
+// グローバルに公開
+window.showCompletionSummary = showCompletionSummary;
+window.closeCompletionSummary = closeCompletionSummary;
+window.openShareModalFromCompletion = openShareModalFromCompletion;
+window.closeShareModal = closeShareModal;
