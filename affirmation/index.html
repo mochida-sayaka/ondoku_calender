@@ -3,21 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🔮 アファメーションカレンダー</title>
+  <title>アファメーションカレンダー</title>
   
   <!-- CSS -->
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/screens.css">
   <link rel="stylesheet" href="css/stats.css">
+  <link rel="stylesheet" href="css/animations.css">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
   <div class="container">
     <!-- 設定画面 -->
-    <div id="setupScreen" class="screen">
-      <h1>🔮 アファメーションカレンダー</h1>
+    <div id="setupScreen" class="screen animate-fade-in">
+      <h1>
+        <span class="icon-xl icon-primary animate-sparkle">
+          <i data-lucide="sparkles"></i>
+        </span>
+        アファメーションカレンダー
+      </h1>
       <p class="subtitle">あなたの心に響く言葉を、毎日音読しましょう</p>
       
-      <div class="setup-card">
+      <div class="setup-card animate-slide-up">
         <div class="form-group">
           <label>あなたの名前</label>
           <input type="text" id="studentNameInput" placeholder="例：田中太郎">
@@ -27,22 +36,30 @@
           <label>今週の気分は？</label>
           <div class="mood-grid" id="moodGrid">
             <button class="mood-btn" data-mood="gentle">
-              <span class="mood-icon">🌸</span>
+              <span class="mood-icon icon-lg">
+                <i data-lucide="flower-2"></i>
+              </span>
               <span class="mood-label">Gentle</span>
               <span class="mood-desc">優しく</span>
             </button>
             <button class="mood-btn" data-mood="uplifting">
-              <span class="mood-icon">🚀</span>
+              <span class="mood-icon icon-lg">
+                <i data-lucide="rocket"></i>
+              </span>
               <span class="mood-label">Uplifting</span>
               <span class="mood-desc">前向きに</span>
             </button>
             <button class="mood-btn" data-mood="empowering">
-              <span class="mood-icon">💪</span>
+              <span class="mood-icon icon-lg">
+                <i data-lucide="zap"></i>
+              </span>
               <span class="mood-label">Empowering</span>
               <span class="mood-desc">力強く</span>
             </button>
             <button class="mood-btn" data-mood="balanced">
-              <span class="mood-icon">🌈</span>
+              <span class="mood-icon icon-lg">
+                <i data-lucide="sparkles"></i>
+              </span>
               <span class="mood-label">Balanced</span>
               <span class="mood-desc">ミックス</span>
             </button>
@@ -53,19 +70,33 @@
           <label>難易度</label>
           <div class="level-grid" id="levelGrid">
             <button class="level-btn" data-level="easy">
+              <span class="icon-sm">
+                <i data-lucide="star"></i>
+              </span>
               <span>初級</span>
               <small>英検5級/4級</small>
             </button>
             <button class="level-btn" data-level="intermediate">
+              <span class="icon-sm">
+                <i data-lucide="trending-up"></i>
+              </span>
               <span>中級</span>
               <small>英検3級</small>
             </button>
             <button class="level-btn" data-level="advanced">
+              <span class="icon-sm">
+                <i data-lucide="gem"></i>
+              </span>
               <span>上級</span>
               <small>英検準2級/2級</small>
             </button>
           </div>
-          <p class="hint-text">💡 選択したムードの文が足りない場合は、同じレベル内の他のムードも含まれます</p>
+          <p class="hint-text">
+            <span class="icon-sm">
+              <i data-lucide="lightbulb"></i>
+            </span>
+            選択したムードの文が足りない場合は、同じレベル内の他のムードも含まれます
+          </p>
         </div>
 
         <div class="form-group">
@@ -78,18 +109,31 @@
         </div>
 
         <button class="primary-btn" id="drawCardsBtn">
-          🔮 今週のカードを引く
+          <span class="icon-sm">
+            <i data-lucide="sparkles"></i>
+          </span>
+          今週のカードを引く
         </button>
       </div>
     </div>
 
     <!-- カレンダー画面 -->
     <div id="calendarScreen" class="screen" style="display: none;">
-      <div class="header">
+      <div class="header animate-slide-down">
         <h2 id="weekRange"></h2>
         <div style="display: flex; gap: 0.5rem;">
-          <button class="secondary-btn" id="statsBtn">📊 統計</button>
-          <button class="secondary-btn" id="settingsBtn">⚙️ 設定を変更</button>
+          <button class="secondary-btn icon-hover" id="statsBtn">
+            <span class="icon-sm">
+              <i data-lucide="bar-chart-2"></i>
+            </span>
+            統計
+          </button>
+          <button class="secondary-btn icon-hover" id="settingsBtn">
+            <span class="icon-sm">
+              <i data-lucide="settings"></i>
+            </span>
+            設定を変更
+          </button>
         </div>
       </div>
       <div class="calendar-container" id="calendar"></div>
@@ -97,26 +141,35 @@
 
     <!-- アファメーション画面 -->
     <div id="affirmationScreen" class="screen" style="display: none;">
-      <div class="header">
-        <button class="secondary-btn" id="backBtn">← 戻る</button>
+      <div class="header animate-slide-down">
+        <button class="secondary-btn" id="backBtn">
+          <span class="icon-sm">
+            <i data-lucide="arrow-left"></i>
+          </span>
+          戻る
+        </button>
         <h2 id="affirmationDate"></h2>
         <div style="width: 80px;"></div>
       </div>
       
       <div class="affirmation-container">
-        <div class="affirmation-card">
+        <div class="affirmation-card animate-scale-in">
           <div class="affirmation-text" id="affirmationText"></div>
           <div class="affirmation-japanese" id="affirmationJapanese" style="display: none;"></div>
           <button class="toggle-btn" id="toggleJapanese">日本語を表示</button>
         </div>
 
         <div class="audio-controls">
-          <button class="audio-btn" id="playModelBtn">
-            <span class="btn-icon">🔊</span>
+          <button class="audio-btn icon-hover" id="playModelBtn">
+            <span class="btn-icon icon-sm">
+              <i data-lucide="volume-2"></i>
+            </span>
             <span>お手本を聞く</span>
           </button>
-          <button class="audio-btn" id="recordBtn">
-            <span class="btn-icon">🎤</span>
+          <button class="audio-btn icon-hover" id="recordBtn">
+            <span class="btn-icon icon-sm">
+              <i data-lucide="mic"></i>
+            </span>
             <span>録音する</span>
           </button>
         </div>
@@ -128,16 +181,29 @@
         <div class="pagination" id="pagination"></div>
 
         <button class="primary-btn" id="completeBtn" style="display: none;">
-          ✨ 完了して送信
+          <span class="icon-sm">
+            <i data-lucide="check-circle"></i>
+          </span>
+          完了して送信
         </button>
       </div>
     </div>
 
     <!-- 統計画面 -->
     <div id="statsScreen" class="screen" style="display: none;">
-      <div class="header">
-        <button class="secondary-btn" id="backToCalendarBtn">← カレンダーに戻る</button>
-        <h2>📊 学習統計</h2>
+      <div class="header animate-slide-down">
+        <button class="secondary-btn" id="backToCalendarBtn">
+          <span class="icon-sm">
+            <i data-lucide="arrow-left"></i>
+          </span>
+          カレンダーに戻る
+        </button>
+        <h2>
+          <span class="icon-sm">
+            <i data-lucide="bar-chart-2"></i>
+          </span>
+          学習統計
+        </h2>
         <div style="width: 120px;"></div>
       </div>
       
@@ -170,8 +236,10 @@
 
   <!-- 完了モーダル -->
   <div id="completionSummaryModal" class="share-modal-overlay" style="display: none;">
-    <div class="completion-summary-modal">
-      <div class="completion-icon">✨</div>
+    <div class="completion-summary-modal animate-scale-in">
+      <div class="completion-icon animate-bounce">
+        <i data-lucide="sparkles" class="icon-xl icon-primary"></i>
+      </div>
       <h2>今日の記録完了！</h2>
       <p class="completion-subtitle">素晴らしい！</p>
       
@@ -180,11 +248,17 @@
       </div>
       
       <div class="completion-buttons">
-        <button class="modal-btn primary" onclick="openShareModalFromCompletion()">
-          📤 シェアする
+        <button class="modal-btn primary icon-hover" onclick="openShareModalFromCompletion()">
+          <span class="icon-sm">
+            <i data-lucide="share-2"></i>
+          </span>
+          シェアする
         </button>
         <button class="modal-btn secondary" onclick="closeCompletionSummary()">
-          ✅ カレンダーに戻る
+          <span class="icon-sm">
+            <i data-lucide="check-circle"></i>
+          </span>
+          カレンダーに戻る
         </button>
       </div>
     </div>
@@ -192,23 +266,31 @@
 
   <!-- シェアモーダル -->
   <div id="shareModal" class="share-modal-overlay" style="display: none;">
-    <div class="share-modal">
+    <div class="share-modal animate-scale-in">
       <h3 class="share-modal-title">シェアする</h3>
       <div class="share-buttons">
-        <button class="share-option-btn" data-platform="twitter">
-          <span class="share-icon">🐦</span>
+        <button class="share-option-btn icon-hover" data-platform="twitter">
+          <span class="share-icon icon-lg">
+            <i data-lucide="twitter"></i>
+          </span>
           <span class="share-label">X (Twitter)</span>
         </button>
-        <button class="share-option-btn" data-platform="facebook">
-          <span class="share-icon">📘</span>
+        <button class="share-option-btn icon-hover" data-platform="facebook">
+          <span class="share-icon icon-lg">
+            <i data-lucide="facebook"></i>
+          </span>
           <span class="share-label">Facebook</span>
         </button>
-        <button class="share-option-btn" data-platform="download">
-          <span class="share-icon">📸</span>
+        <button class="share-option-btn icon-hover" data-platform="download">
+          <span class="share-icon icon-lg">
+            <i data-lucide="camera"></i>
+          </span>
           <span class="share-label">画像をダウンロード</span>
         </button>
-        <button class="share-option-btn" data-platform="copy">
-          <span class="share-icon">📋</span>
+        <button class="share-option-btn icon-hover" data-platform="copy">
+          <span class="share-icon icon-lg">
+            <i data-lucide="clipboard"></i>
+          </span>
           <span class="share-label">コピー</span>
         </button>
       </div>
@@ -219,7 +301,19 @@
   <!-- 画像生成用のCanvas（非表示） -->
   <canvas id="shareCanvas" style="display: none;"></canvas>
 
-</body>
+  <!-- Lucide Icons 初期化 -->
+  <script>
+    // ページ読み込み時にアイコンを初期化
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+    });
+    
+    // 動的に追加されたアイコンも初期化
+    const observer = new MutationObserver(() => {
+      lucide.createIcons();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  </script>
 
 </body>
 </html>
