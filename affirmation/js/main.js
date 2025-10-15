@@ -665,6 +665,30 @@ function showCompletionSummary() {
   
   document.getElementById('completedAffirmationsList').innerHTML = listHTML;
   document.getElementById('completionSummaryModal').style.display = 'flex';
+  
+  // 週の完了状況をチェック
+  const completedDays = window.appState.weeklyData.weeklyCards.filter(d => d.completed).length;
+  const isWeekComplete = completedDays === 7;
+  
+  // 紙吹雪を発動！
+  if (isWeekComplete) {
+    // 1週間完了：超派手バージョン
+    triggerConfetti({
+      count: 100,
+      colors: ['#9c27b0', '#e91e63', '#ffd700', '#2196f3', '#ffffff'],
+      duration: 4000,
+      size: { min: 8, max: 15 },
+      message: '🎉 今週コンプリート！'
+    });
+  } else {
+    // 毎日の完了：控えめバージョン
+    triggerConfetti({
+      count: 30,
+      colors: ['#9c27b0', '#e91e63'],
+      duration: 2000,
+      size: { min: 6, max: 10 }
+    });
+  }
 }
 
 // 完了サマリーを閉じる
