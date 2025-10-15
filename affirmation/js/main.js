@@ -950,18 +950,25 @@ function sleep(ms) {
  * @param {Function} callback - アニメーション完了後に実行する関数
  */
 async function showCardDrawAnimation(callback) {
+  // GSAPが読み込まれているか確認
+  if (typeof gsap === 'undefined') {
+    console.error('❌ GSAPが読み込まれていません');
+    alert('アニメーションの準備中です。もう一度試してください。');
+    if (callback) await callback();
+    return;
+  }
   // ローディングオーバーレイを作成
   const overlay = createLoadingOverlay();
   document.body.appendChild(overlay);
   
   // GSAPでオーバーレイをフェードイン
   gsap.from(overlay, {
-    duration: 0.6,
+    duration: 0.4,
     opacity: 0,
     ease: "power2.out"
   });
   
-  await sleep(600);
+  await sleep(400);
   
   // ステップ1: 魔法陣をアニメーション
   animateMagicCircle(overlay);
@@ -973,7 +980,7 @@ async function showCardDrawAnimation(callback) {
   await showCardShuffleGSAP(overlay);
   
   // ステップ4: キラキラエフェクト
-  createSparklesGSAP(overlay, 40);
+  createSparklesGSAP(overlay, 30);
   
   // ステップ5: 完了メッセージ
   await showCompletionMessageGSAP(overlay);
@@ -1041,17 +1048,16 @@ async function showCountdownGSAP(overlay) {
     
     // GSAPで登場アニメーション
     await gsap.to(countdownNum, {
-      duration: 0.8,
+      duration: 0.6,
       opacity: 1,
       scale: 1.3,
       ease: "back.out(3)"
     });
     
-    await sleep(800);
+    await sleep(600);
     
-    // GSAPで消えるアニメーション
     await gsap.to(countdownNum, {
-      duration: 0.5,
+      duration: 0.4,
       opacity: 0,
       scale: 0.5,
       ease: "power2.in"
@@ -1069,18 +1075,18 @@ async function showCardShuffleGSAP(overlay) {
   
   // テキストをアニメーション
   gsap.to(loadingText, {
-    duration: 0.5,
+    duration: 0.3,
     opacity: 0,
     onComplete: () => {
       loadingText.textContent = 'シャッフル中...';
       gsap.to(loadingText, {
-        duration: 0.5,
+        duration: 0.3,
         opacity: 1
       });
     }
   });
   
-  await sleep(700);
+  await sleep(500);
   
   // カードを5枚生成
   const cards = [];
@@ -1097,39 +1103,38 @@ async function showCardShuffleGSAP(overlay) {
   }
   
   // GSAPで順番に登場
-  gsap.from(cards, {
-    duration: 1,
+gsap.from(cards, {
+    duration: 0.8,
     y: 200,
     opacity: 0,
     rotation: -30,
     scale: 0.5,
-    stagger: 0.2,
+    stagger: 0.15,
     ease: "back.out(2)"
   });
   
-  await sleep(1600);
+  await sleep(1200);
   
-  // カードをバウンスさせながら回転
   gsap.to(cards, {
-    duration: 2.5,
+    duration: 2,
     y: -30,
     rotation: 360,
     scale: 1.15,
-    stagger: 0.15,
+    stagger: 0.12,
     ease: "elastic.out(1, 0.4)",
     repeat: 1,
     yoyo: true
   });
   
-  await sleep(4500);
+  await sleep(3500);
   
   // カードを消す
-  await gsap.to(cards, {
-    duration: 0.6,
+await gsap.to(cards, {
+    duration: 0.5,
     y: -100,
     opacity: 0,
     rotation: 720,
-    stagger: 0.1,
+    stagger: 0.08,
     ease: "power2.in"
   });
   
@@ -1188,8 +1193,8 @@ async function showCompletionMessageGSAP(overlay) {
   const loadingText = overlay.querySelector('.loading-text');
   
   // テキストを「抽選中...」に変更
-  await gsap.to(loadingText, {
-    duration: 0.4,
+await gsap.to(loadingText, {
+    duration: 0.3,
     opacity: 0,
     scale: 0.8,
     onComplete: () => {
@@ -1198,16 +1203,16 @@ async function showCompletionMessageGSAP(overlay) {
   });
   
   await gsap.to(loadingText, {
-    duration: 0.5,
+    duration: 0.4,
     opacity: 1,
     scale: 1
   });
   
-  await sleep(1500);
+  await sleep(1000);
   
   // 完了メッセージに変更
   await gsap.to(loadingText, {
-    duration: 0.4,
+    duration: 0.3,
     opacity: 0
   });
   
@@ -1220,15 +1225,14 @@ async function showCompletionMessageGSAP(overlay) {
   message.style.transform = 'scale(0)';
   overlay.appendChild(message);
   
-  // メッセージを登場させる
   await gsap.to(message, {
-    duration: 1,
+    duration: 0.8,
     opacity: 1,
     scale: 1,
     ease: "back.out(2)"
   });
   
-  await sleep(2000);
+  await sleep(1200);
 }
 
 // ==============================================
