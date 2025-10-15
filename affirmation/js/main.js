@@ -964,7 +964,7 @@ window.closeShareModal = closeShareModal;
 // ==============================================
 
 /**
- * カード引く演出を表示（派手版）
+ * カード引く演出を表示（7秒版）
  * @param {Function} callback - アニメーション完了後に実行する関数
  */
 async function showCardDrawAnimation(callback) {
@@ -973,28 +973,28 @@ async function showCardDrawAnimation(callback) {
   document.body.appendChild(overlay);
   
   // 演出の流れ
-  await sleep(800); // 少し長めに待つ
+  await sleep(400); // 0.4秒
   
-  // ステップ1: カウントダウン（3, 2, 1）- 各1.2秒
+  // ステップ1: カウントダウン（3, 2, 1）- 各0.8秒
   await showCountdown(overlay);
   
-  // ステップ2: カードシャッフル演出 - 3秒
+  // ステップ2: カードシャッフル演出 - 2.5秒
   await showCardShuffle(overlay);
   
-  // ステップ3: キラキラエフェクト（30個に増量）
-  createSparkles(overlay, 30);
+  // ステップ3: キラキラエフェクト（20個）
+  createSparkles(overlay, 20);
   
   // ステップ4: 実際のカード抽選処理
   if (callback) {
     await callback();
   }
   
-  // ステップ5: 完了メッセージ - 2秒
+  // ステップ5: 完了メッセージ - 1秒
   await showCompletionMessage(overlay);
   
   // ステップ6: フェードアウトしてオーバーレイを削除
-  overlay.style.animation = 'fadeOut 0.8s ease';
-  await sleep(800);
+  overlay.style.animation = 'fadeOut 0.5s ease';
+  await sleep(500); // 0.5秒
   document.body.removeChild(overlay);
 }
 
@@ -1014,7 +1014,7 @@ function createLoadingOverlay() {
 }
 
 /**
- * カウントダウン表示（3, 2, 1）- 各1.2秒
+ * カウントダウン表示（3, 2, 1）- 各0.8秒
  */
 async function showCountdown(overlay) {
   for (let i = 3; i > 0; i--) {
@@ -1023,29 +1023,35 @@ async function showCountdown(overlay) {
     countdownNum.textContent = i;
     overlay.appendChild(countdownNum);
     
-    await sleep(1200); // 1秒 → 1.2秒に延長
+    await sleep(800); // 0.8秒
     overlay.removeChild(countdownNum);
   }
 }
 
 /**
- * カードシャッフル演出（5枚横並び）
+ * カードシャッフル演出（改善版）
  */
 async function showCardShuffle(overlay) {
   const loadingText = overlay.querySelector('.loading-text');
   loadingText.textContent = 'シャッフル中...';
   
-  // カードを5枚表示（横並び）
+  // カードを5枚表示（位置を動的に設定）
   const cards = [];
+  const cardPositions = [20, 30, 40, 50, 60, 70, 80]; // 画面幅に対する%
+  
   for (let i = 0; i < 5; i++) {
     const card = document.createElement('div');
     card.className = 'card-shuffle';
-    card.style.animationDelay = `${i * 0.1}s`;
+    
+    // JavaScriptで位置を設定
+    card.style.left = `${cardPositions[i]}%`;
+    card.style.animationDelay = `${i * 0.15}s`;
+    
     overlay.appendChild(card);
     cards.push(card);
   }
   
-  await sleep(3000); // 2秒 → 3秒に延長
+  await sleep(2500); // 2.5秒間表示
   
   // カードを削除
   cards.forEach(card => overlay.removeChild(card));
@@ -1073,7 +1079,7 @@ function createSparkles(overlay, count = 30) {
 }
 
 /**
- * 完了メッセージを表示（2秒表示）
+ * 完了メッセージを表示（1秒表示）
  */
 async function showCompletionMessage(overlay) {
   const loadingText = overlay.querySelector('.loading-text');
@@ -1084,7 +1090,7 @@ async function showCompletionMessage(overlay) {
   message.textContent = '✨ 今週のカードが決まりました！';
   overlay.appendChild(message);
   
-  await sleep(2000); // 1.5秒 → 2秒に延長
+  await sleep(1000); // 1秒
 }
 
 /**
