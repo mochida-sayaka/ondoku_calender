@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>アファメーションカレンダー</title>
+  <link rel="icon" href="data:,">
   
   <!-- CSS -->
   <link rel="stylesheet" href="css/base.css">
@@ -45,16 +46,6 @@
     
     .icon-white {
       stroke: white;
-    }
-    
-    /* アイコンアニメーション */
-    .icon-hover {
-      transition: all 0.3s ease;
-    }
-    
-    .icon-hover:hover {
-      transform: scale(1.2);
-      filter: drop-shadow(0 0 8px rgba(123, 31, 162, 0.5));
     }
     
     /* 気分アイコン */
@@ -326,33 +317,71 @@
   <!-- 画像生成用のCanvas（非表示） -->
   <canvas id="shareCanvas" style="display: none;"></canvas>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase SDK & JavaScript（順番に読み込み） -->
   <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-    import { getStorage } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+    // Firebase SDKを読み込んで初期化
+    import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js')
+      .then(({ initializeApp }) => {
+        return import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js')
+          .then(({ getFirestore }) => {
+            return import('https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js')
+              .then(({ getStorage }) => {
+                const firebaseConfig = {
+                  apiKey: "AIzaSyBMJZ89D_L8xSWFE_JbhAIEu08dGO3p5B8",
+                  authDomain: "english-calendar.firebaseapp.com",
+                  projectId: "english-calendar",
+                  storageBucket: "english-calendar.firebasestorage.app",
+                  messagingSenderId: "19266347001",
+                  appId: "1:19266347001:web:ecd1dc1b7eb6d54a6e30d7"
+                };
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBMJZ89D_L8xSWFE_JbhAIEu08dGO3p5B8",
-      authDomain: "english-calendar.firebaseapp.com",
-      projectId: "english-calendar",
-      storageBucket: "english-calendar.firebasestorage.app",
-      messagingSenderId: "19266347001",
-      appId: "1:19266347001:web:ecd1dc1b7eb6d54a6e30d7"
-    };
+                const app = initializeApp(firebaseConfig);
+                window.db = getFirestore(app);
+                window.storage = getStorage(app);
+                
+                // JavaScriptファイルを順番に読み込む
+                loadScripts();
+              });
+          });
+      });
 
-    const app = initializeApp(firebaseConfig);
-    window.db = getFirestore(app);
-    window.storage = getStorage(app);
+    function loadScripts() {
+      const scripts = [
+        'js/affirmation.js',
+        'js/calendar.js',
+        'js/firebase-service.js',
+        'js/stats.js',
+        'js/utils.js',
+        'js/main.js'
+      ];
+
+      let index = 0;
+
+      function loadNext() {
+        if (index >= scripts.length) {
+          return;
+        }
+
+        const script = document.createElement('script');
+        script.src = scripts[index];
+        
+        script.onload = () => {
+          index++;
+          loadNext();
+        };
+        
+        script.onerror = () => {
+          console.error(`Failed to load: ${scripts[index]}`);
+          index++;
+          loadNext();
+        };
+        
+        document.body.appendChild(script);
+      }
+
+      loadNext();
+    }
   </script>
-
-  <!-- JavaScript -->
-  <script src="js/affirmation.js"></script>
-  <script src="js/calendar.js"></script>
-  <script src="js/firebase-service.js"></script>
-  <script src="js/stats.js"></script>
-  <script src="js/utils.js"></script>
-  <script src="js/main.js"></script>
 
 </body>
 </html>
