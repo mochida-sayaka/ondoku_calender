@@ -934,6 +934,7 @@ function createLoadingOverlay() {
       <div class="magic-icon">🔮</div>
     </div>
     <div class="loading-text">カードを引いています...</div>
+    <button class="skip-animation-btn">スキップ ⏭️</button>
   `;
   return overlay;
 }
@@ -961,6 +962,17 @@ async function showCardDrawAnimation(callback) {
   const overlay = createLoadingOverlay();
   document.body.appendChild(overlay);
   
+// スキップボタンのイベントリスナー
+  let isSkipped = false;
+  const skipBtn = overlay.querySelector('.skip-animation-btn');
+  skipBtn.addEventListener('click', () => {
+    isSkipped = true;
+    gsap.killTweensOf("*"); // すべてのアニメーションを停止
+    overlay.remove();
+    if (callback) callback();
+    showCalendar();
+  });
+
   // GSAPでオーバーレイをフェードイン
   gsap.from(overlay, {
     duration: 0.4,
@@ -992,7 +1004,7 @@ async function showCardDrawAnimation(callback) {
   
   // ステップ7: フェードアウトしてオーバーレイを削除
   await gsap.to(overlay, {
-    duration: 0.8,
+    duration: 0.6,
     opacity: 0,
     ease: "power2.in"
   });
