@@ -161,6 +161,9 @@ async function handleDrawCards(e) {
   
   // ボタンを光らせる
   button.classList.add('drawing-cards');
+
+  // 設定画面を非表示にしてからアニメーション開始
+  document.getElementById('setupScreen').style.display = 'none';
   
   try {
     // アニメーション演出を表示
