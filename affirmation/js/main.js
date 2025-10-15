@@ -191,7 +191,7 @@ function handleResetSettings() {
   if (confirm('設定を変更すると、今週のカードがリセットされます。\n本当に変更しますか？')) {
     localStorage.removeItem('weeklyData');
     window.appState.weeklyData = null;
-    showSetupScreen();
+    location.reload(); // ページをリロードして初期化
   }
 }
 
@@ -951,6 +951,9 @@ function sleep(ms) {
  * @param {Function} callback - アニメーション完了後に実行する関数
  */
 async function showCardDrawAnimation(callback) {
+  // ← ここに追加
+  console.log('🎬 アニメーション開始');
+  console.log('GSAP存在チェック:', typeof gsap !== 'undefined');
   // GSAPが読み込まれているか確認
   if (typeof gsap === 'undefined') {
     console.error('❌ GSAPが読み込まれていません');
@@ -967,11 +970,15 @@ async function showCardDrawAnimation(callback) {
   const skipBtn = overlay.querySelector('.skip-animation-btn');
   skipBtn.addEventListener('click', () => {
     isSkipped = true;
-    gsap.killTweensOf("*"); // すべてのアニメーションを停止
-    overlay.remove();
+    gsap.killTweensOf(overlay); // ← このoverlayだけ停止
+    if (overlay.parentNode) {
+        overlay.remove();
+    }
     if (callback) callback();
     showCalendar();
-  });
+    });
+
+  console.log('⏰ フェードイン開始'); // ← 追加
 
   // GSAPでオーバーレイをフェードイン
   gsap.from(overlay, {
@@ -980,16 +987,23 @@ async function showCardDrawAnimation(callback) {
     ease: "power2.out"
   });
   
+  console.log('⏰ sleep(400) 開始'); // ← 追加
   await sleep(400);
+  console.log('⏰ sleep(400) 完了'); // ← 追加
   
   // ステップ1: 魔法陣をアニメーション
-  animateMagicCircle(overlay);
-  
-  // ステップ2: カウントダウン（3, 2, 1）
-  await showCountdownGSAP(overlay);
-  
-  // ステップ3: カードシャッフル演出
-  await showCardShuffleGSAP(overlay);
+    console.log('🎨 ステップ1: 魔法陣開始');
+    animateMagicCircle(overlay);
+
+    // ステップ2: カウントダウン（3, 2, 1）
+    console.log('🎨 ステップ2: カウントダウン開始');
+    await showCountdownGSAP(overlay);
+    console.log('🎨 ステップ2: カウントダウン完了');
+
+    // ステップ3: カードシャッフル演出
+    console.log('🎨 ステップ3: カードシャッフル開始');
+    await showCardShuffleGSAP(overlay);
+    console.log('🎨 ステップ3: カードシャッフル完了');
   
   // ステップ4: キラキラエフェクト
   createSparklesGSAP(overlay, 30);
@@ -1050,7 +1064,9 @@ function animateMagicCircle(overlay) {
  * カウントダウン表示（GSAP版）
  */
 async function showCountdownGSAP(overlay) {
+  console.log('⏱️ カウントダウン関数開始');
   for (let i = 3; i > 0; i--) {
+    console.log(`⏱️ カウント: ${i}`);
     const countdownNum = document.createElement('div');
     countdownNum.className = 'countdown-number';
     countdownNum.textContent = i;
@@ -1058,7 +1074,9 @@ async function showCountdownGSAP(overlay) {
     countdownNum.style.transform = 'scale(0)';
     overlay.appendChild(countdownNum);
     
-    // GSAPで登場アニメーション
+    console.log(`⏱️ ${i}: GSAP登場開始`);
+    const startTime = Date.now();
+    
     await gsap.to(countdownNum, {
       duration: 0.6,
       opacity: 1,
@@ -1066,7 +1084,16 @@ async function showCountdownGSAP(overlay) {
       ease: "back.out(3)"
     });
     
+    const gsapTime = Date.now() - startTime;
+    console.log(`⏱️ ${i}: GSAP登場完了（実測: ${gsapTime}ms）`);
+    
+    console.log(`⏱️ ${i}: sleep(600)開始`);
+    const sleepStart = Date.now();
+    
     await sleep(600);
+    
+    const sleepTime = Date.now() - sleepStart;
+    console.log(`⏱️ ${i}: sleep完了（実測: ${sleepTime}ms）`);
     
     await gsap.to(countdownNum, {
       duration: 0.4,
