@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>テスト - アファメーションカレンダー</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    
+    h1 {
+      color: #4a148c;
+      text-align: center;
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+    
+    .icon {
+      width: 48px;
+      height: 48px;
+      stroke: #7b1fa2;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    
+    .test-section {
+      margin: 30px 0;
+      padding: 20px;
+      background: #f3e5f5;
+      border-radius: 10px;
+    }
+    
+    .test-section h2 {
+      color: #6a1b9a;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    
+    .icon-item {
+      text-align: center;
+      padding: 15px;
+      background: white;
+      border-radius: 10px;
+      border: 2px solid #e1bee7;
+    }
+    
+    .icon-item .icon {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 8px;
+    }
+    
+    .icon-label {
+      font-size: 12px;
+      color: #6a1b9a;
+    }
+    
+    .status {
+      padding: 15px;
+      background: #d4edda;
+      color: #155724;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    
+    .btn {
+      background: #7b1fa2;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .btn:hover {
+      background: #6a1b9a;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(123, 31, 162, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="status">
+      ✅ このページが表示されていれば、HTMLとCSSは正常です
+    </div>
+    
+    <h1>
+      <svg class="icon" viewBox="0 0 24 24">
+        <path d="M12 3v18M3 12h18M6 6l12 12M6 18L18 6"/>
+      </svg>
+      テストページ
+    </h1>
+
+    <div class="test-section">
+      <h2>📋 確認項目</h2>
+      <ul style="list-style: none; padding: 0;">
+        <li style="padding: 8px 0;">✅ このページが表示される</li>
+        <li style="padding: 8px 0;">✅ 上のキラキラアイコンが見える</li>
+        <li style="padding: 8px 0;">✅ 下のアイコンが全て見える</li>
+        <li style="padding: 8px 0;">✅ ボタンが表示される</li>
+      </ul>
+    </div>
+
+    <div class="test-section">
+      <h2>🎨 アイコンテスト</h2>
+      <div class="icon-grid">
+        <div class="icon-item">
+          <svg class="icon" viewBox="0 0 24 24">
+            <path d="M12 3v18M3 12h18M6 6l12 12M6 18L18 6"/>
+          </svg>
+          <div class="icon-label">sparkles</div>
+        </div>
+        
+        <div class="icon-item">
+          <svg class="icon" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 16.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 1 1 12 7.5a4.5 4.5 0 1 1 4.5 4.5 4.5 4.5 0 1 1-4.5 4.5"/>
+          </svg>
+          <div class="icon-label">flower</div>
+        </div>
+        
+        <div class="icon-item">
+          <svg class="icon" viewBox="0 0 24 24">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          <div class="icon-label">zap</div>
+        </div>
+        
+        <div class="icon-item">
+          <svg class="icon" viewBox="0 0 24 24">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>
+          </svg>
+          <div class="icon-label">mic</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn">
+      <svg class="icon" viewBox="0 0 24 24" style="width: 24px; height: 24px; stroke: white;">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+        <polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+      テスト成功！
+    </button>
+
+    <div class="test-section" style="margin-top: 30px;">
+      <h2>🔍 次のステップ</h2>
+      <p style="color: #6a1b9a; line-height: 1.6;">
+        このページが正常に表示されていれば：<br>
+        ① HTMLとCSS → ✅ 問題なし<br>
+        ② SVGアイコン → ✅ 表示される<br>
+        <br>
+        <strong>問題は既存のJavaScriptファイルにあります。</strong>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
