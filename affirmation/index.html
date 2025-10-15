@@ -150,6 +150,42 @@
     </div>
   </div>
 
+  <!-- 完了サマリーモーダル -->
+  <div id="completionSummaryModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>✨ 今日の音読完了！</h3>
+        <button class="close-btn" id="closeCompletionSummaryBtn">×</button>
+      </div>
+      <div class="modal-body">
+        <p>今日音読したアファメーション：</p>
+        <div id="completedAffirmationsList" class="completed-list"></div>
+        <div class="modal-actions">
+          <button class="primary-btn" id="shareBtn">📤 シェアする</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- シェアモーダル -->
+  <div id="shareModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>📤 学習記録をシェア</h3>
+        <button class="close-btn" id="closeShareModalBtn">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="sharePreview" class="share-preview">
+          <!-- 画像プレビューはJSで生成 -->
+        </div>
+        <div class="modal-actions">
+          <button class="secondary-btn" id="downloadImageBtn">💾 画像をダウンロード</button>
+          <button class="primary-btn" id="closeShareAndReturnBtn">カレンダーに戻る</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
