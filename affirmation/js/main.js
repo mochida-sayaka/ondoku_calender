@@ -964,6 +964,28 @@ window.closeShareModal = closeShareModal;
 // ==============================================
 
 /**
+ * ローディングオーバーレイを作成
+ */
+function createLoadingOverlay() {
+  const overlay = document.createElement('div');
+  overlay.className = 'loading-overlay';
+  overlay.innerHTML = `
+    <div class="magic-circle">
+      <div class="magic-icon">🔮</div>
+    </div>
+    <div class="loading-text">カードを引いています...</div>
+  `;
+  return overlay;
+}
+
+/**
+ * 指定ミリ秒待つ
+ */
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
  * カード引く演出を表示（GSAP版）
  * @param {Function} callback - アニメーション完了後に実行する関数
  */
@@ -1230,11 +1252,4 @@ async function showCompletionMessageGSAP(overlay) {
   });
   
   await sleep(1000);
-}
-
-/**
- * 指定ミリ秒待つ
- */
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
 }
