@@ -986,7 +986,7 @@ function sleep(ms) {
 }
 
 /**
- * カード引く演出を表示（GSAP版）
+ * カード引く演出を表示（GSAP版・修正）
  * @param {Function} callback - アニメーション完了後に実行する関数
  */
 async function showCardDrawAnimation(callback) {
@@ -1015,13 +1015,13 @@ async function showCardDrawAnimation(callback) {
   // ステップ4: キラキラエフェクト
   createSparklesGSAP(overlay, 25);
   
-  // ステップ5: 実際のカード抽選処理
+  // ステップ5: 完了メッセージ
+  await showCompletionMessageGSAP(overlay);
+  
+  // ステップ6: 実際のカード抽選処理（アニメーション後に実行）
   if (callback) {
     await callback();
   }
-  
-  // ステップ6: 完了メッセージ
-  await showCompletionMessageGSAP(overlay);
   
   // ステップ7: フェードアウトしてオーバーレイを削除
   await gsap.to(overlay, {
@@ -1227,11 +1227,28 @@ function createSparklesGSAP(overlay, count = 25) {
 async function showCompletionMessageGSAP(overlay) {
   const loadingText = overlay.querySelector('.loading-text');
   
-  // テキストを消す
+  // テキストを「抽選中...」に変更
   await gsap.to(loadingText, {
     duration: 0.2,
     opacity: 0,
-    scale: 0.8
+    scale: 0.8,
+    onComplete: () => {
+      loadingText.textContent = '抽選中...';
+    }
+  });
+  
+  await gsap.to(loadingText, {
+    duration: 0.3,
+    opacity: 1,
+    scale: 1
+  });
+  
+  await sleep(800);
+  
+  // 完了メッセージに変更
+  await gsap.to(loadingText, {
+    duration: 0.2,
+    opacity: 0
   });
   
   loadingText.textContent = '';
