@@ -1041,17 +1041,17 @@ async function showCountdownGSAP(overlay) {
     
     // GSAPで登場アニメーション
     await gsap.to(countdownNum, {
-      duration: 0.4,
+      duration: 0.6,
       opacity: 1,
       scale: 1.3,
       ease: "back.out(3)"
     });
     
-    await sleep(400);
+    await sleep(600);
     
     // GSAPで消えるアニメーション
     await gsap.to(countdownNum, {
-      duration: 0.3,
+      duration: 0.4,
       opacity: 0,
       scale: 0.5,
       ease: "power2.in"
@@ -1080,7 +1080,7 @@ async function showCardShuffleGSAP(overlay) {
     }
   });
   
-  await sleep(300);
+  await sleep(500);
   
   // カードを5枚生成
   const cards = [];
@@ -1098,38 +1098,38 @@ async function showCardShuffleGSAP(overlay) {
   
   // GSAPで順番に登場
   gsap.from(cards, {
-    duration: 0.6,
+    duration: 0.8,
     y: 200,
     opacity: 0,
     rotation: -30,
     scale: 0.5,
-    stagger: 0.1,
+    stagger: 0.15,
     ease: "back.out(2)"
   });
   
-  await sleep(800);
+  await sleep(1200);
   
   // カードをバウンスさせながら回転
   gsap.to(cards, {
-    duration: 1.5,
+    duration: 2,
     y: -30,
     rotation: 360,
     scale: 1.15,
-    stagger: 0.08,
+    stagger: 0.12,
     ease: "elastic.out(1, 0.4)",
     repeat: 1,
     yoyo: true
   });
   
-  await sleep(2500);
+  await sleep(3500);
   
   // カードを消す
   await gsap.to(cards, {
-    duration: 0.4,
+    duration: 0.5,
     y: -100,
     opacity: 0,
     rotation: 720,
-    stagger: 0.05,
+    stagger: 0.08,
     ease: "power2.in"
   });
   
