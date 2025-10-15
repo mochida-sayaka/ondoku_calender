@@ -956,12 +956,12 @@ async function showCardDrawAnimation(callback) {
   
   // GSAPでオーバーレイをフェードイン
   gsap.from(overlay, {
-    duration: 0.4,
+    duration: 0.6,
     opacity: 0,
     ease: "power2.out"
   });
   
-  await sleep(400);
+  await sleep(600);
   
   // ステップ1: 魔法陣をアニメーション
   animateMagicCircle(overlay);
@@ -973,7 +973,7 @@ async function showCardDrawAnimation(callback) {
   await showCardShuffleGSAP(overlay);
   
   // ステップ4: キラキラエフェクト
-  createSparklesGSAP(overlay, 20);
+  createSparklesGSAP(overlay, 40);
   
   // ステップ5: 完了メッセージ
   await showCompletionMessageGSAP(overlay);
@@ -985,7 +985,7 @@ async function showCardDrawAnimation(callback) {
   
   // ステップ7: フェードアウトしてオーバーレイを削除
   await gsap.to(overlay, {
-    duration: 0.5,
+    duration: 0.8,
     opacity: 0,
     ease: "power2.in"
   });
@@ -1041,17 +1041,17 @@ async function showCountdownGSAP(overlay) {
     
     // GSAPで登場アニメーション
     await gsap.to(countdownNum, {
-      duration: 0.6,
+      duration: 0.8,
       opacity: 1,
       scale: 1.3,
       ease: "back.out(3)"
     });
     
-    await sleep(600);
+    await sleep(800);
     
     // GSAPで消えるアニメーション
     await gsap.to(countdownNum, {
-      duration: 0.4,
+      duration: 0.5,
       opacity: 0,
       scale: 0.5,
       ease: "power2.in"
@@ -1069,18 +1069,18 @@ async function showCardShuffleGSAP(overlay) {
   
   // テキストをアニメーション
   gsap.to(loadingText, {
-    duration: 0.3,
+    duration: 0.5,
     opacity: 0,
     onComplete: () => {
       loadingText.textContent = 'シャッフル中...';
       gsap.to(loadingText, {
-        duration: 0.3,
+        duration: 0.5,
         opacity: 1
       });
     }
   });
   
-  await sleep(500);
+  await sleep(700);
   
   // カードを5枚生成
   const cards = [];
@@ -1098,38 +1098,38 @@ async function showCardShuffleGSAP(overlay) {
   
   // GSAPで順番に登場
   gsap.from(cards, {
-    duration: 0.8,
+    duration: 1,
     y: 200,
     opacity: 0,
     rotation: -30,
     scale: 0.5,
-    stagger: 0.15,
+    stagger: 0.2,
     ease: "back.out(2)"
   });
   
-  await sleep(1200);
+  await sleep(1600);
   
   // カードをバウンスさせながら回転
   gsap.to(cards, {
-    duration: 2,
+    duration: 2.5,
     y: -30,
     rotation: 360,
     scale: 1.15,
-    stagger: 0.12,
+    stagger: 0.15,
     ease: "elastic.out(1, 0.4)",
     repeat: 1,
     yoyo: true
   });
   
-  await sleep(3500);
+  await sleep(4500);
   
   // カードを消す
   await gsap.to(cards, {
-    duration: 0.5,
+    duration: 0.6,
     y: -100,
     opacity: 0,
     rotation: 720,
-    stagger: 0.08,
+    stagger: 0.1,
     ease: "power2.in"
   });
   
@@ -1189,7 +1189,7 @@ async function showCompletionMessageGSAP(overlay) {
   
   // テキストを「抽選中...」に変更
   await gsap.to(loadingText, {
-    duration: 0.2,
+    duration: 0.4,
     opacity: 0,
     scale: 0.8,
     onComplete: () => {
@@ -1198,16 +1198,16 @@ async function showCompletionMessageGSAP(overlay) {
   });
   
   await gsap.to(loadingText, {
-    duration: 0.3,
+    duration: 0.5,
     opacity: 1,
     scale: 1
   });
   
-  await sleep(800);
+  await sleep(1500);
   
   // 完了メッセージに変更
   await gsap.to(loadingText, {
-    duration: 0.2,
+    duration: 0.4,
     opacity: 0
   });
   
@@ -1222,13 +1222,13 @@ async function showCompletionMessageGSAP(overlay) {
   
   // メッセージを登場させる
   await gsap.to(message, {
-    duration: 0.6,
+    duration: 1,
     opacity: 1,
     scale: 1,
     ease: "back.out(2)"
   });
   
-  await sleep(1000);
+  await sleep(2000);
 }
 
 // ==============================================
@@ -1275,7 +1275,7 @@ function showSpecialMessage(message) {
     font-weight: bold;
     color: #9c27b0;
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
-    z-index: 10001;
+    z-index: 100000;
     opacity: 0;
     pointer-events: none;
   `;
@@ -1293,7 +1293,9 @@ function showSpecialMessage(message) {
         opacity: 0,
         delay: 2,
         onComplete: () => {
-          document.body.removeChild(messageEl);
+          if (document.body.contains(messageEl)) {
+            document.body.removeChild(messageEl);
+          }
         }
       });
     }
@@ -1315,6 +1317,9 @@ function createConfettiPiece(colors, duration, size) {
   // ランダムな形（丸 or 四角）
   const isCircle = Math.random() > 0.5;
   
+  // ランダムな開始位置
+  const startLeft = Math.random() * 100;
+  
   confetti.style.cssText = `
     position: fixed;
     width: ${pieceSize}px;
@@ -1322,19 +1327,19 @@ function createConfettiPiece(colors, duration, size) {
     background-color: ${color};
     border-radius: ${isCircle ? '50%' : '0'};
     top: -20px;
-    left: ${Math.random() * 100}%';
-    z-index: 10000;
+    left: ${startLeft}%;
+    z-index: 99999;
     pointer-events: none;
   `;
   
   document.body.appendChild(confetti);
   
   // ランダムな動き
-  const randomX = (Math.random() - 0.5) * 200;
+  const randomX = (Math.random() - 0.5) * 300;
   const randomRotation = Math.random() * 720 - 360;
   const fallDuration = duration / 1000;
   
-  // GSAPでアニメーション
+  // GSAPでアニメーション（1つのアニメーションに統合）
   gsap.to(confetti, {
     duration: fallDuration,
     y: window.innerHeight + 50,
@@ -1343,16 +1348,9 @@ function createConfettiPiece(colors, duration, size) {
     opacity: 0,
     ease: "power1.in",
     onComplete: () => {
-      document.body.removeChild(confetti);
+      if (document.body.contains(confetti)) {
+        document.body.removeChild(confetti);
+      }
     }
-  });
-  
-  // 揺れるアニメーション
-  gsap.to(confetti, {
-    duration: 0.5,
-    x: `+=${Math.random() * 50 - 25}`,
-    repeat: -1,
-    yoyo: true,
-    ease: "sine.inOut"
   });
 }
