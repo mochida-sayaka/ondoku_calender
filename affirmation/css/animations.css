@@ -24,105 +24,120 @@
   }
 }
 
-/* スライドダウン */
-@keyframes slideDown {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* スケールイン */
-@keyframes scaleIn {
-  from {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-/* カードフリップ */
-@keyframes flipCard {
-  0% {
-    transform: perspective(1000px) rotateY(0deg);
-  }
-  50% {
-    transform: perspective(1000px) rotateY(90deg);
-  }
-  100% {
-    transform: perspective(1000px) rotateY(0deg);
-  }
-}
-
-/* キラキラエフェクト */
-@keyframes sparkle {
-  0%, 100% {
-    opacity: 0;
-    transform: scale(0) rotate(0deg);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1) rotate(180deg);
-  }
-}
-
-/* パルス（脈動） */
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.8;
-  }
-}
-
 /* バウンス */
 @keyframes bounce {
   0%, 20%, 50%, 80%, 100% {
     transform: translateY(0);
   }
   40% {
-    transform: translateY(-10px);
+    transform: translateY(-20px);
   }
   60% {
-    transform: translateY(-5px);
+    transform: translateY(-10px);
   }
 }
 
-/* シェイク */
-@keyframes shake {
-  0%, 100% {
-    transform: translateX(0);
-  }
-  10%, 30%, 50%, 70%, 90% {
-    transform: translateX(-5px);
-  }
-  20%, 40%, 60%, 80% {
-    transform: translateX(5px);
-  }
-}
-
-/* 回転 */
-@keyframes rotate {
+/* フェードアウト */
+@keyframes fadeOut {
   from {
-    transform: rotate(0deg);
+    opacity: 1;
   }
   to {
-    transform: rotate(360deg);
+    opacity: 0;
   }
 }
 
-/* 紙吹雪（祝福エフェクト） */
-@keyframes confetti {
+/* ==============================================
+   ボタンアニメーション
+   ============================================== */
+
+/* ボタンの波紋エフェクト */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* ホバー時の拡大 */
+.primary-btn:hover,
+.secondary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(123, 31, 162, 0.4);
+  transition: all 0.3s ease;
+}
+
+/* クリック時の縮小 */
+.primary-btn:active,
+.secondary-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(123, 31, 162, 0.3);
+}
+
+/* ==============================================
+   カレンダーセルアニメーション
+   ============================================== */
+
+/* セルの表示アニメーション */
+.calendar-cell {
+  animation: fadeIn 0.3s ease;
+}
+
+/* セルホバー */
+.calendar-cell:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(123, 31, 162, 0.2);
+  transition: all 0.3s ease;
+}
+
+/* 完了セルのパルス */
+@keyframes completePulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+  }
+}
+
+.calendar-cell.completed {
+  animation: completePulse 2s ease-in-out;
+}
+
+/* ==============================================
+   統計画面のアニメーション
+   ============================================== */
+
+/* 統計カードの順次表示 */
+.stat-card {
+  animation: slideUp 0.5s ease;
+}
+
+.stat-card:nth-child(1) { animation-delay: 0s; }
+.stat-card:nth-child(2) { animation-delay: 0.1s; }
+.stat-card:nth-child(3) { animation-delay: 0.2s; }
+.stat-card:nth-child(4) { animation-delay: 0.3s; }
+
+/* プログレスバーの伸びるアニメーション */
+@keyframes progressGrow {
+  from {
+    width: 0;
+  }
+}
+
+.progress-fill {
+  animation: progressGrow 1s ease-out;
+}
+
+/* ==============================================
+   完了時の紙吹雪エフェクト
+   ============================================== */
+
+@keyframes confettiFall {
   0% {
     transform: translateY(-100vh) rotate(0deg);
     opacity: 1;
@@ -133,296 +148,222 @@
   }
 }
 
-/* プログレスバー */
-@keyframes progressBar {
-  from {
-    width: 0;
+.confetti {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  animation: confettiFall 3s linear;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ==============================================
+   ボタン「光る」エフェクト（カード引く時）
+   ============================================== */
+
+@keyframes buttonGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(123, 31, 162, 0.5);
   }
-  to {
-    width: var(--progress-width);
+  50% {
+    box-shadow: 0 0 40px rgba(123, 31, 162, 0.8), 0 0 60px rgba(156, 39, 176, 0.6);
   }
 }
 
-/* ==============================================
-   アニメーションクラス
-   ============================================== */
-
-.animate-fade-in {
-  animation: fadeIn 0.5s ease;
-}
-
-.animate-slide-up {
-  animation: slideUp 0.5s ease;
-}
-
-.animate-slide-down {
-  animation: slideDown 0.5s ease;
-}
-
-.animate-scale-in {
-  animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.animate-flip {
-  animation: flipCard 0.8s ease;
-}
-
-.animate-sparkle {
-  animation: sparkle 1s ease infinite;
-}
-
-.animate-pulse {
-  animation: pulse 2s ease infinite;
-}
-
-.animate-bounce {
-  animation: bounce 1s ease;
-}
-
-.animate-shake {
-  animation: shake 0.5s ease;
-}
-
-.animate-rotate {
-  animation: rotate 1s linear infinite;
-}
-
-/* 遅延付きアニメーション */
-.animate-delay-1 {
-  animation-delay: 0.1s;
-}
-
-.animate-delay-2 {
-  animation-delay: 0.2s;
-}
-
-.animate-delay-3 {
-  animation-delay: 0.3s;
-}
-
-.animate-delay-4 {
-  animation-delay: 0.4s;
-}
-
-.animate-delay-5 {
-  animation-delay: 0.5s;
+.drawing-cards {
+  animation: buttonGlow 1.5s ease-in-out infinite;
+  pointer-events: none;
 }
 
 /* ==============================================
-   Lucide Icons スタイル
+   カード引く演出：オーバーレイ
    ============================================== */
 
-/* アイコンの基本スタイル */
-[data-lucide] {
-  width: 24px;
-  height: 24px;
-  stroke-width: 2;
-  vertical-align: middle;
-  display: inline-block;
-}
-
-/* 小さいアイコン */
-.icon-sm [data-lucide] {
-  width: 16px;
-  height: 16px;
-}
-
-/* 大きいアイコン */
-.icon-lg [data-lucide] {
-  width: 32px;
-  height: 32px;
-}
-
-.icon-xl [data-lucide] {
-  width: 48px;
-  height: 48px;
-}
-
-/* カラーバリエーション */
-.icon-primary [data-lucide] {
-  stroke: #8b5cf6;
-}
-
-.icon-success [data-lucide] {
-  stroke: #10b981;
-}
-
-.icon-warning [data-lucide] {
-  stroke: #f59e0b;
-}
-
-.icon-danger [data-lucide] {
-  stroke: #ef4444;
-}
-
-.icon-white [data-lucide] {
-  stroke: white;
-}
-
-/* ホバーエフェクト */
-.icon-hover:hover [data-lucide] {
-  stroke: #a78bfa;
-  transform: scale(1.1);
-  transition: all 0.2s ease;
-}
-
-/* ==============================================
-   ボタンアニメーション
-   ============================================== */
-
-.btn {
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-}
-
-.btn:active {
-  transform: translateY(0);
-}
-
-/* 波紋エフェクト */
-.btn::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.5);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
-
-.btn:active::after {
-  width: 300px;
-  height: 300px;
-}
-
-/* ==============================================
-   カレンダーセルアニメーション
-   ============================================== */
-
-.calendar-cell {
-  transition: all 0.3s ease;
-}
-
-.calendar-cell:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
-}
-
-.calendar-cell.completed {
-  animation: scaleIn 0.5s ease;
-}
-
-/* ==============================================
-   モーダルアニメーション
-   ============================================== */
-
-.modal {
-  animation: fadeIn 0.3s ease;
-}
-
-.modal-content {
-  animation: slideUp 0.4s ease;
-}
-
-/* ==============================================
-   統計画面のアニメーション
-   ============================================== */
-
-.stat-card {
-  animation: slideUp 0.5s ease;
-}
-
-.stat-card:nth-child(1) { animation-delay: 0.1s; }
-.stat-card:nth-child(2) { animation-delay: 0.2s; }
-.stat-card:nth-child(3) { animation-delay: 0.3s; }
-.stat-card:nth-child(4) { animation-delay: 0.4s; }
-
-/* プログレスバーのアニメーション */
-.progress-bar {
-  position: relative;
-  height: 8px;
-  background: #e5e7eb;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #8b5cf6, #a78bfa);
-  border-radius: 999px;
-  transition: width 1s ease;
-  animation: progressBar 1.5s ease;
-}
-
-/* ==============================================
-   紙吹雪エフェクト
-   ============================================== */
-
-.confetti-container {
+/* オーバーレイ全体 */
+.loading-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  pointer-events: none;
-  z-index: 9999;
-  overflow: hidden;
+  background: linear-gradient(135deg, rgba(123, 31, 162, 0.95), rgba(103, 58, 183, 0.95));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
 }
 
-.confetti {
+/* 魔法陣 */
+.magic-circle {
+  width: 200px;
+  height: 200px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  animation: rotate 3s linear infinite;
+  box-shadow: 0 0 40px rgba(255, 255, 255, 0.5);
+}
+
+.magic-circle::before {
+  content: '';
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+}
+
+.magic-circle::after {
+  content: '';
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+.magic-icon {
+  font-size: 80px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* ローディングテキスト */
+.loading-text {
+  margin-top: 40px;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* カウントダウン数字 */
+.countdown-number {
+  position: absolute;
+  font-size: 120px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+  animation: countdownPop 1s ease-out;
+}
+
+@keyframes countdownPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* カードシャッフル */
+.card-shuffle {
+  position: absolute;
+  width: 100px;
+  height: 140px;
+  background: linear-gradient(135deg, #fff, #f0f0f0);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: cardFly 2s ease-in-out infinite;
+}
+
+@keyframes cardFly {
+  0%, 100% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-100px) translateX(50px) rotate(360deg);
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+}
+
+/* キラキラパーティクル */
+.sparkle-particle {
   position: absolute;
   width: 10px;
   height: 10px;
-  background: #8b5cf6;
-  animation: confetti 3s linear;
-}
-
-.confetti:nth-child(2n) { background: #a78bfa; }
-.confetti:nth-child(3n) { background: #c4b5fd; }
-.confetti:nth-child(4n) { background: #10b981; }
-.confetti:nth-child(5n) { background: #f59e0b; }
-
-/* ==============================================
-   ローディングスピナー
-   ============================================== */
-
-.spinner {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: rotate 0.8s linear infinite;
-}
-
-/* ==============================================
-   トースト通知アニメーション
-   ============================================== */
-
-.toast {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 1rem 1.5rem;
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  animation: slideDown 0.3s ease;
-  z-index: 9999;
+  border-radius: 50%;
+  box-shadow: 0 0 10px white;
+  animation: sparkleFloat 3s ease-in-out infinite;
+  pointer-events: none;
 }
 
-.toast.hide {
-  animation: slideUp 0.3s ease;
+@keyframes sparkleFloat {
+  0% {
+    transform: translateY(100vh) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) scale(1);
+    opacity: 0;
+  }
+}
+
+/* 完了メッセージ */
+.completion-message {
+  font-size: 32px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  animation: messageAppear 0.5s ease-out;
+}
+
+@keyframes messageAppear {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 回転アニメーション */
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* パルスアニメーション */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 /* ==============================================
@@ -430,30 +371,34 @@
    ============================================== */
 
 @media (max-width: 768px) {
-  [data-lucide] {
-    width: 20px;
-    height: 20px;
+  .magic-circle {
+    width: 150px;
+    height: 150px;
   }
   
-  .icon-lg [data-lucide] {
-    width: 28px;
-    height: 28px;
+  .magic-icon {
+    font-size: 60px;
   }
   
-  .icon-xl [data-lucide] {
-    width: 40px;
-    height: 40px;
+  .loading-text {
+    font-size: 18px;
+  }
+  
+  .countdown-number {
+    font-size: 80px;
+  }
+  
+  .completion-message {
+    font-size: 24px;
   }
 }
 
 /* ==============================================
-   アクセシビリティ: アニメーション削減
+   アクセシビリティ（動きを減らす設定への対応）
    ============================================== */
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
