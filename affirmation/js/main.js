@@ -960,11 +960,11 @@ window.openShareModalFromCompletion = openShareModalFromCompletion;
 window.closeShareModal = closeShareModal;
 
 // ==============================================
-// カード引く演出アニメーション
+// カード引く演出アニメーション（GSAP版）
 // ==============================================
 
 /**
- * カード引く演出を表示（7秒版）
+ * カード引く演出を表示（GSAP版）
  * @param {Function} callback - アニメーション完了後に実行する関数
  */
 async function showCardDrawAnimation(callback) {
@@ -972,125 +972,264 @@ async function showCardDrawAnimation(callback) {
   const overlay = createLoadingOverlay();
   document.body.appendChild(overlay);
   
-  // 演出の流れ
-  await sleep(400); // 0.4秒
+  // GSAPでオーバーレイをフェードイン
+  gsap.from(overlay, {
+    duration: 0.4,
+    opacity: 0,
+    ease: "power2.out"
+  });
   
-  // ステップ1: カウントダウン（3, 2, 1）- 各0.8秒
-  await showCountdown(overlay);
+  await sleep(400);
   
-  // ステップ2: カードシャッフル演出 - 2.5秒
-  await showCardShuffle(overlay);
+  // ステップ1: 魔法陣をアニメーション
+  animateMagicCircle(overlay);
   
-  // ステップ3: キラキラエフェクト（20個）
-  createSparkles(overlay, 20);
+  // ステップ2: カウントダウン（3, 2, 1）
+  await showCountdownGSAP(overlay);
   
-  // ステップ4: 実際のカード抽選処理
+  // ステップ3: カードシャッフル演出
+  await showCardShuffleGSAP(overlay);
+  
+  // ステップ4: キラキラエフェクト
+  createSparklesGSAP(overlay, 25);
+  
+  // ステップ5: 実際のカード抽選処理
   if (callback) {
     await callback();
   }
   
-  // ステップ5: 完了メッセージ - 1秒
-  await showCompletionMessage(overlay);
+  // ステップ6: 完了メッセージ
+  await showCompletionMessageGSAP(overlay);
   
-  // ステップ6: フェードアウトしてオーバーレイを削除
-  overlay.style.animation = 'fadeOut 0.5s ease';
-  await sleep(500); // 0.5秒
+  // ステップ7: フェードアウトしてオーバーレイを削除
+  await gsap.to(overlay, {
+    duration: 0.5,
+    opacity: 0,
+    ease: "power2.in"
+  });
+  
   document.body.removeChild(overlay);
 }
 
 /**
- * ローディングオーバーレイを作成
+ * 魔法陣をアニメーション
  */
-function createLoadingOverlay() {
-  const overlay = document.createElement('div');
-  overlay.className = 'loading-overlay';
-  overlay.innerHTML = `
-    <div class="magic-circle">
-      <div class="magic-icon">🔮</div>
-    </div>
-    <div class="loading-text">カードを引いています...</div>
-  `;
-  return overlay;
+function animateMagicCircle(overlay) {
+  const magicCircle = overlay.querySelector('.magic-circle');
+  const magicIcon = overlay.querySelector('.magic-icon');
+  
+  // 魔法陣を回転
+  gsap.to(magicCircle, {
+    duration: 2,
+    rotation: 360,
+    repeat: -1,
+    ease: "none"
+  });
+  
+  // アイコンをパルス
+  gsap.to(magicIcon, {
+    duration: 1,
+    scale: 1.2,
+    repeat: -1,
+    yoyo: true,
+    ease: "power1.inOut"
+  });
+  
+  // 魔法陣を輝かせる
+  gsap.to(magicCircle, {
+    duration: 1.5,
+    boxShadow: "0 0 100px rgba(255, 255, 255, 0.8), 0 0 150px rgba(255, 215, 0, 0.6)",
+    repeat: -1,
+    yoyo: true,
+    ease: "power1.inOut"
+  });
 }
 
 /**
- * カウントダウン表示（3, 2, 1）- 各0.8秒
+ * カウントダウン表示（GSAP版）
  */
-async function showCountdown(overlay) {
+async function showCountdownGSAP(overlay) {
   for (let i = 3; i > 0; i--) {
     const countdownNum = document.createElement('div');
     countdownNum.className = 'countdown-number';
     countdownNum.textContent = i;
+    countdownNum.style.opacity = '0';
+    countdownNum.style.transform = 'scale(0)';
     overlay.appendChild(countdownNum);
     
-    await sleep(800); // 0.8秒
+    // GSAPで登場アニメーション
+    await gsap.to(countdownNum, {
+      duration: 0.4,
+      opacity: 1,
+      scale: 1.3,
+      ease: "back.out(3)"
+    });
+    
+    await sleep(400);
+    
+    // GSAPで消えるアニメーション
+    await gsap.to(countdownNum, {
+      duration: 0.3,
+      opacity: 0,
+      scale: 0.5,
+      ease: "power2.in"
+    });
+    
     overlay.removeChild(countdownNum);
   }
 }
 
 /**
- * カードシャッフル演出（改善版）
+ * カードシャッフル演出（GSAP版）
  */
-async function showCardShuffle(overlay) {
+async function showCardShuffleGSAP(overlay) {
   const loadingText = overlay.querySelector('.loading-text');
-  loadingText.textContent = 'シャッフル中...';
   
-  // カードを5枚表示（位置を動的に設定）
+  // テキストをアニメーション
+  gsap.to(loadingText, {
+    duration: 0.3,
+    opacity: 0,
+    onComplete: () => {
+      loadingText.textContent = 'シャッフル中...';
+      gsap.to(loadingText, {
+        duration: 0.3,
+        opacity: 1
+      });
+    }
+  });
+  
+  await sleep(300);
+  
+  // カードを5枚生成
   const cards = [];
-  const cardPositions = [20, 30, 40, 50, 60, 70, 80]; // 画面幅に対する%
+  const cardPositions = [15, 30, 45, 60, 75];
   
   for (let i = 0; i < 5; i++) {
     const card = document.createElement('div');
     card.className = 'card-shuffle';
-    
-    // JavaScriptで位置を設定
     card.style.left = `${cardPositions[i]}%`;
-    card.style.animationDelay = `${i * 0.15}s`;
-    
+    card.style.top = '50%';
+    card.style.opacity = '0';
     overlay.appendChild(card);
     cards.push(card);
   }
   
-  await sleep(2500); // 2.5秒間表示
+  // GSAPで順番に登場
+  gsap.from(cards, {
+    duration: 0.6,
+    y: 200,
+    opacity: 0,
+    rotation: -30,
+    scale: 0.5,
+    stagger: 0.1,
+    ease: "back.out(2)"
+  });
   
-  // カードを削除
+  await sleep(800);
+  
+  // カードをバウンスさせながら回転
+  gsap.to(cards, {
+    duration: 1.5,
+    y: -30,
+    rotation: 360,
+    scale: 1.15,
+    stagger: 0.08,
+    ease: "elastic.out(1, 0.4)",
+    repeat: 1,
+    yoyo: true
+  });
+  
+  await sleep(1700);
+  
+  // カードを消す
+  await gsap.to(cards, {
+    duration: 0.4,
+    y: -100,
+    opacity: 0,
+    rotation: 720,
+    stagger: 0.05,
+    ease: "power2.in"
+  });
+  
   cards.forEach(card => overlay.removeChild(card));
 }
 
 /**
- * キラキラパーティクルを生成（増量版）
+ * キラキラパーティクルを生成（GSAP版）
  */
-function createSparkles(overlay, count = 30) {
+function createSparklesGSAP(overlay, count = 25) {
   for (let i = 0; i < count; i++) {
     const sparkle = document.createElement('div');
     sparkle.className = 'sparkle-particle';
     sparkle.style.left = `${Math.random() * 100}%`;
-    sparkle.style.animationDelay = `${Math.random() * 2}s`;
-    sparkle.style.animationDuration = `${3 + Math.random() * 2}s`;
+    sparkle.style.top = `${Math.random() * 100}%`;
+    sparkle.style.opacity = '0';
     overlay.appendChild(sparkle);
     
-    // 6秒後に削除
-    setTimeout(() => {
-      if (overlay.contains(sparkle)) {
-        overlay.removeChild(sparkle);
+    // 中心からの距離を計算（放射状に広がる）
+    const centerX = 50;
+    const centerY = 50;
+    const x = parseFloat(sparkle.style.left);
+    const y = parseFloat(sparkle.style.top);
+    const angle = Math.atan2(y - centerY, x - centerX);
+    const distance = 100;
+    
+    // GSAPでアニメーション
+    gsap.to(sparkle, {
+      duration: 2 + Math.random(),
+      x: Math.cos(angle) * distance,
+      y: Math.sin(angle) * distance,
+      opacity: 1,
+      scale: 1.5,
+      rotation: Math.random() * 360,
+      ease: "power1.out",
+      delay: Math.random() * 0.5,
+      onComplete: () => {
+        gsap.to(sparkle, {
+          duration: 0.5,
+          opacity: 0,
+          onComplete: () => {
+            if (overlay.contains(sparkle)) {
+              overlay.removeChild(sparkle);
+            }
+          }
+        });
       }
-    }, 6000);
+    });
   }
 }
 
 /**
- * 完了メッセージを表示（1秒表示）
+ * 完了メッセージを表示（GSAP版）
  */
-async function showCompletionMessage(overlay) {
+async function showCompletionMessageGSAP(overlay) {
   const loadingText = overlay.querySelector('.loading-text');
+  
+  // テキストを消す
+  await gsap.to(loadingText, {
+    duration: 0.2,
+    opacity: 0,
+    scale: 0.8
+  });
+  
   loadingText.textContent = '';
   
   const message = document.createElement('div');
   message.className = 'completion-message';
   message.textContent = '✨ 今週のカードが決まりました！';
+  message.style.opacity = '0';
+  message.style.transform = 'scale(0)';
   overlay.appendChild(message);
   
-  await sleep(1000); // 1秒
+  // メッセージを登場させる
+  await gsap.to(message, {
+    duration: 0.6,
+    opacity: 1,
+    scale: 1,
+    ease: "back.out(2)"
+  });
+  
+  await sleep(1000);
 }
 
 /**
