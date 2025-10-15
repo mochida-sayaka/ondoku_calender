@@ -56,6 +56,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   console.log('✅ 初期化完了');
 });
 
+// 全選択チェック→ボタンを光らせる
+function checkAllSelected() {
+  const nameInput = document.getElementById('studentNameInput').value.trim();
+  const allSelected = nameInput && 
+                      window.appState.selectedMood && 
+                      window.appState.selectedLevel && 
+                      window.appState.selectedCount;
+  
+  const button = document.getElementById('drawCardsBtn');
+  if (allSelected) {
+    button.classList.add('ready');
+  } else {
+    button.classList.remove('ready');
+  }
+}
+
 // 名前入力
 document.getElementById('studentNameInput').addEventListener('input', () => {
   checkAllSelected();
@@ -97,21 +113,6 @@ function setupEventListeners() {
     closeShareModal();
     closeCompletionSummary();
   });
-  // 全選択チェック→ボタンを光らせる
-    function checkAllSelected() {
-    const nameInput = document.getElementById('studentNameInput').value.trim();
-    const allSelected = nameInput && 
-                        window.appState.selectedMood && 
-                        window.appState.selectedLevel && 
-                        window.appState.selectedCount;
-    
-    const button = document.getElementById('drawCardsBtn');
-    if (allSelected) {
-        button.classList.add('ready');
-    } else {
-        button.classList.remove('ready');
-    }
-    }
 }
 
 // 気分選択
