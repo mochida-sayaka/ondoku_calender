@@ -175,11 +175,21 @@
         <button class="close-btn" id="closeShareModalBtn">×</button>
       </div>
       <div class="modal-body">
-        <div id="sharePreview" class="share-preview">
-          <!-- 画像プレビューはJSで生成 -->
+        <div class="share-options">
+          <button class="share-option-btn" data-platform="twitter">
+            <span class="share-icon">🐦</span>
+            <span>Xでシェア</span>
+          </button>
+          <button class="share-option-btn" data-platform="facebook">
+            <span class="share-icon">👍</span>
+            <span>Facebookでシェア</span>
+          </button>
+          <button class="share-option-btn" data-platform="download">
+            <span class="share-icon">💾</span>
+            <span>画像をダウンロード</span>
+          </button>
         </div>
         <div class="modal-actions">
-          <button class="secondary-btn" id="downloadImageBtn">💾 画像をダウンロード</button>
           <button class="primary-btn" id="closeShareAndReturnBtn">カレンダーに戻る</button>
         </div>
       </div>

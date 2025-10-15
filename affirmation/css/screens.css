@@ -616,3 +616,34 @@
 .share-modal-close:hover {
   background: #f9fafb;
 }
+
+/* シェアオプション */
+.share-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.share-option-btn {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1rem;
+}
+
+.share-option-btn:hover {
+  border-color: #8b5cf6;
+  background: #f9fafb;
+  transform: translateY(-2px);
+}
+
+.share-icon {
+  font-size: 1.5rem;
+}
