@@ -77,6 +77,21 @@ function setupEventListeners() {
   
   // 統計画面
   document.getElementById('backToCalendarBtn').addEventListener('click', showCalendar);
+  
+  // 完了サマリーモーダル
+  document.getElementById('closeCompletionSummaryBtn')?.addEventListener('click', closeCompletionSummary);
+  document.getElementById('shareBtn')?.addEventListener('click', openShareModalFromCompletion);
+  
+  // シェアモーダル
+  document.getElementById('closeShareModalBtn')?.addEventListener('click', closeShareModal);
+  document.getElementById('downloadImageBtn')?.addEventListener('click', async () => {
+    const day = window.appState.weeklyData.weeklyCards[window.appState.currentDayIndex];
+    await downloadAffirmationImage(day.affirmations);
+  });
+  document.getElementById('closeShareAndReturnBtn')?.addEventListener('click', () => {
+    closeShareModal();
+    closeCompletionSummary();
+  });
 }
 
 // 気分選択
@@ -705,12 +720,6 @@ function closeCompletionSummary() {
 function openShareModalFromCompletion() {
   const modal = document.getElementById('shareModal');
   modal.style.display = 'flex';
-  
-  // SNS選択ボタンにイベントリスナーを設定
-  const shareButtons = document.querySelectorAll('.share-option-btn');
-  shareButtons.forEach(btn => {
-    btn.onclick = () => handleSharePlatform(btn.dataset.platform);
-  });
 }
 
 // シェアモーダルを閉じる
@@ -719,80 +728,7 @@ function closeShareModal() {
   modal.style.display = 'none';
 }
 
-// 各プラットフォームへのシェア（修正版）
-async function handleSharePlatform(platform) {
-  const day = window.appState.weeklyData.weeklyCards[window.appState.currentDayIndex];
-  
-  // 今日の全アファメーションをテキストに
-  const affirmationTexts = day.affirmations.map(aff => 
-    `"${aff.text}"\n（${aff.japanese}）`
-  ).join('\n\n');
-  
-  // シェアテキスト
-  const shareText = `✨ 今日のアファメーション\n\n${affirmationTexts}\n\n#音読カレンダー #英語学習`;
-  const shareUrl = window.location.href;
-  
-  switch (platform) {
-    case 'twitter':
-      shareToTwitter(shareText, shareUrl);
-      break;
-    case 'facebook':
-      shareToFacebook(shareUrl, shareText);
-      break;
-    case 'download':
-      await downloadAffirmationImage(day.affirmations);
-      break;
-    case 'copy':
-      await copyToClipboard(shareText + '\n' + shareUrl);
-      break;
-  }
-  
-  closeShareModal();
-}
-
-// クリップボードにコピー
-async function copyToClipboard(text) {
-  try {
-    await navigator.clipboard.writeText(text);
-    alert('📋 クリップボードにコピーしました！');
-  } catch (error) {
-    console.error('コピーエラー:', error);
-    fallbackCopy(text);
-  }
-}
-
-// フォールバック：コピー
-function fallbackCopy(text) {
-  const textarea = document.createElement('textarea');
-  textarea.value = text;
-  textarea.style.position = 'fixed';
-  textarea.style.opacity = '0';
-  document.body.appendChild(textarea);
-  textarea.select();
-  
-  try {
-    document.execCommand('copy');
-    alert('📋 クリップボードにコピーしました！');
-  } catch (error) {
-    alert('コピーに失敗しました');
-  }
-  
-  document.body.removeChild(textarea);
-}
-
-// Twitterにシェア
-function shareToTwitter(text, url) {
-  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
-  window.open(twitterUrl, '_blank', 'width=600,height=400');
-}
-
-// Facebookにシェア
-function shareToFacebook(url, text) {
-  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`;
-  window.open(facebookUrl, '_blank', 'width=600,height=400');
-}
-
-// レポート画像をダウンロード（NEW！）
+// レポート画像をダウンロード
 async function downloadAffirmationImage(affirmations) {
   try {
     // 統計データを取得
@@ -1037,7 +973,7 @@ async function showCardDrawAnimation(callback) {
   await showCardShuffleGSAP(overlay);
   
   // ステップ4: キラキラエフェクト
-  createSparklesGSAP(overlay, 25);
+  createSparklesGSAP(overlay, 20);
   
   // ステップ5: 完了メッセージ
   await showCompletionMessageGSAP(overlay);
@@ -1185,7 +1121,7 @@ async function showCardShuffleGSAP(overlay) {
     yoyo: true
   });
   
-  await sleep(1700);
+  await sleep(2500);
   
   // カードを消す
   await gsap.to(cards, {
@@ -1203,7 +1139,7 @@ async function showCardShuffleGSAP(overlay) {
 /**
  * キラキラパーティクルを生成（GSAP版）
  */
-function createSparklesGSAP(overlay, count = 25) {
+function createSparklesGSAP(overlay, count = 20) {
   for (let i = 0; i < count; i++) {
     const sparkle = document.createElement('div');
     sparkle.className = 'sparkle-particle';
@@ -1293,4 +1229,130 @@ async function showCompletionMessageGSAP(overlay) {
   });
   
   await sleep(1000);
+}
+
+// ==============================================
+// 紙吹雪アニメーション（GSAP版）
+// ==============================================
+
+/**
+ * 紙吹雪を発動
+ * @param {Object} options - 紙吹雪のオプション
+ */
+function triggerConfetti(options = {}) {
+  const {
+    count = 30,
+    colors = ['#9c27b0', '#e91e63'],
+    duration = 2000,
+    size = { min: 6, max: 10 },
+    message = null
+  } = options;
+  
+  // 特別メッセージがあれば表示
+  if (message) {
+    showSpecialMessage(message);
+  }
+  
+  // 紙吹雪を生成
+  for (let i = 0; i < count; i++) {
+    createConfettiPiece(colors, duration, size);
+  }
+}
+
+/**
+ * 特別メッセージを表示
+ */
+function showSpecialMessage(message) {
+  const messageEl = document.createElement('div');
+  messageEl.className = 'confetti-message';
+  messageEl.textContent = message;
+  messageEl.style.cssText = `
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    font-size: 48px;
+    font-weight: bold;
+    color: #9c27b0;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    z-index: 10001;
+    opacity: 0;
+    pointer-events: none;
+  `;
+  document.body.appendChild(messageEl);
+  
+  // GSAPでアニメーション
+  gsap.to(messageEl, {
+    duration: 0.8,
+    opacity: 1,
+    scale: 1,
+    ease: "back.out(2)",
+    onComplete: () => {
+      gsap.to(messageEl, {
+        duration: 0.5,
+        opacity: 0,
+        delay: 2,
+        onComplete: () => {
+          document.body.removeChild(messageEl);
+        }
+      });
+    }
+  });
+}
+
+/**
+ * 紙吹雪の1ピースを生成
+ */
+function createConfettiPiece(colors, duration, size) {
+  const confetti = document.createElement('div');
+  
+  // ランダムな色を選択
+  const color = colors[Math.floor(Math.random() * colors.length)];
+  
+  // ランダムなサイズ
+  const pieceSize = size.min + Math.random() * (size.max - size.min);
+  
+  // ランダムな形（丸 or 四角）
+  const isCircle = Math.random() > 0.5;
+  
+  confetti.style.cssText = `
+    position: fixed;
+    width: ${pieceSize}px;
+    height: ${pieceSize}px;
+    background-color: ${color};
+    border-radius: ${isCircle ? '50%' : '0'};
+    top: -20px;
+    left: ${Math.random() * 100}%';
+    z-index: 10000;
+    pointer-events: none;
+  `;
+  
+  document.body.appendChild(confetti);
+  
+  // ランダムな動き
+  const randomX = (Math.random() - 0.5) * 200;
+  const randomRotation = Math.random() * 720 - 360;
+  const fallDuration = duration / 1000;
+  
+  // GSAPでアニメーション
+  gsap.to(confetti, {
+    duration: fallDuration,
+    y: window.innerHeight + 50,
+    x: randomX,
+    rotation: randomRotation,
+    opacity: 0,
+    ease: "power1.in",
+    onComplete: () => {
+      document.body.removeChild(confetti);
+    }
+  });
+  
+  // 揺れるアニメーション
+  gsap.to(confetti, {
+    duration: 0.5,
+    x: `+=${Math.random() * 50 - 25}`,
+    repeat: -1,
+    yoyo: true,
+    ease: "sine.inOut"
+  });
 }
