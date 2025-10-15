@@ -252,3 +252,18 @@ input[type="text"]:focus {
     gap: 0.5rem;
   }
 }
+
+/* ボタンが光る（準備完了） */
+.primary-btn.ready {
+  animation: pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.8);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(139, 92, 246, 1);
+  }
+}

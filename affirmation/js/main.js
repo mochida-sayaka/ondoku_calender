@@ -56,6 +56,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   console.log('✅ 初期化完了');
 });
 
+// 名前入力
+document.getElementById('studentNameInput').addEventListener('input', () => {
+  checkAllSelected();
+});
+
 // イベントリスナー設定
 function setupEventListeners() {
   // 設定画面
@@ -92,6 +97,21 @@ function setupEventListeners() {
     closeShareModal();
     closeCompletionSummary();
   });
+  // 全選択チェック→ボタンを光らせる
+    function checkAllSelected() {
+    const nameInput = document.getElementById('studentNameInput').value.trim();
+    const allSelected = nameInput && 
+                        window.appState.selectedMood && 
+                        window.appState.selectedLevel && 
+                        window.appState.selectedCount;
+    
+    const button = document.getElementById('drawCardsBtn');
+    if (allSelected) {
+        button.classList.add('ready');
+    } else {
+        button.classList.remove('ready');
+    }
+    }
 }
 
 // 気分選択
@@ -102,6 +122,7 @@ function setupMoodSelection() {
       moodBtns.forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       window.appState.selectedMood = btn.dataset.mood;
+      checkAllSelected(); // ← 追加
     });
   });
 }
@@ -114,6 +135,7 @@ function setupLevelSelection() {
       levelBtns.forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       window.appState.selectedLevel = btn.dataset.level;
+      checkAllSelected(); // ← 追加
     });
   });
 }
@@ -126,6 +148,7 @@ function setupCountSelection() {
       countBtns.forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       window.appState.selectedCount = parseInt(btn.dataset.count);
+      checkAllSelected(); // ← 追加
     });
   });
 }
@@ -159,7 +182,8 @@ async function handleDrawCards(e) {
   window.appState.studentName = nameInput;
   localStorage.setItem('studentName', nameInput);
   
-  // ボタンを光らせる
+  // ボタンの光りを止める
+  button.classList.remove('ready');
   button.classList.add('drawing-cards');
 
   // 設定画面を非表示にしてからアニメーション開始
