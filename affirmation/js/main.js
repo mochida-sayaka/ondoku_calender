@@ -959,7 +959,7 @@ function createLoadingOverlay() {
   overlay.className = 'loading-overlay';
   overlay.innerHTML = `
     <div class="magic-circle">
-      <div class="magic-icon">🔮</div>
+      <div class="magic-icon">🌟</div>
     </div>
     <div class="loading-text">カードを引いています...</div>
     <button class="skip-animation-btn">スキップ ⏭️</button>
@@ -1051,7 +1051,10 @@ async function showCardDrawAnimation(callback) {
     ease: "power2.in"
   });
   
-  document.body.removeChild(overlay);
+  // 存在確認してから削除
+  if (overlay.parentNode) {
+    document.body.removeChild(overlay);
+  }
 }
 
 /**
@@ -1106,7 +1109,7 @@ async function showCountdownGSAP(overlay) {
     const startTime = Date.now();
     
     await gsap.to(countdownNum, {
-      duration: 0.6,
+      duration: 0.4,
       opacity: 1,
       scale: 1.3,
       ease: "back.out(3)"
@@ -1118,13 +1121,13 @@ async function showCountdownGSAP(overlay) {
     console.log(`⏱️ ${i}: sleep(600)開始`);
     const sleepStart = Date.now();
     
-    await sleep(600);
+    await sleep(400);
     
     const sleepTime = Date.now() - sleepStart;
     console.log(`⏱️ ${i}: sleep完了（実測: ${sleepTime}ms）`);
     
     await gsap.to(countdownNum, {
-      duration: 0.4,
+      duration: 0.3,
       opacity: 0,
       scale: 0.5,
       ease: "power2.in"
