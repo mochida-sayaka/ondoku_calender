@@ -97,6 +97,19 @@ function setupEventListeners() {
   document.getElementById('recordBtn').addEventListener('click', handleRecord);
   document.getElementById('completeBtn').addEventListener('click', handleComplete);
   
+  // テーマ選択
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      // すべてのボタンからactiveを削除
+      document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+      // クリックされたボタンにactiveを追加
+      btn.classList.add('active');
+      // テーマを適用
+      const themeId = btn.dataset.theme;
+      window.applyTheme(themeId);
+    });
+  });
+
   // 統計画面
   document.getElementById('backToCalendarBtn').addEventListener('click', showCalendar);
   

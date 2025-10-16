@@ -26,18 +26,19 @@ async function fetchAffirmations(settings) {
   
   const { mood, level, sentencesPerDay } = settings;
   
-  // クエリを構築
-  let q = query(
-    collection(window.db, 'affirmations'),
-    where('level', '==', level)
-  );
-  
   // ムードでフィルタ
-  if (mood !== 'balanced') {
+  let q;
+  if (mood && mood !== 'balanced') {
     q = query(
       collection(window.db, 'affirmations'),
       where('level', '==', level),
       where('moods', 'array-contains', mood)
+    );
+  } else {
+    // balanced または mood未指定の場合はlevelのみで検索
+    q = query(
+      collection(window.db, 'affirmations'),
+      where('level', '==', level)
     );
   }
   
