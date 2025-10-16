@@ -284,6 +284,20 @@ input[type="text"]:focus {
   gap: 1rem;
 }
 
+/* テーマ選択（モーダル用：3列） */
+.theme-grid-full {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .theme-grid-full {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+
 .theme-btn {
   background: white;
   border: 3px solid #e5e7eb;

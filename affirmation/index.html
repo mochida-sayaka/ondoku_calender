@@ -80,21 +80,6 @@
           </div>
         </div>
 
-        <!-- テーマ選択 -->
-        <div class="form-group">
-          <label>🎨 テーマ</label>
-          <div class="theme-grid" id="themeGrid">
-            <button class="theme-btn active" data-theme="mystic">
-              <span class="theme-emoji">🔮</span>
-              <span class="theme-name">ミスティック</span>
-            </button>
-            <button class="theme-btn" data-theme="tropical">
-              <span class="theme-emoji">🌺</span>
-              <span class="theme-name">トロピカル</span>
-            </button>
-          </div>
-        </div>
-
         <button class="primary-btn" id="drawCardsBtn">
           🔮 今週のカードを引く
         </button>
@@ -107,6 +92,7 @@
         <h2 id="weekRange"></h2>
         <div style="display: flex; gap: 0.5rem;">
           <button class="secondary-btn" id="statsBtn">📊 統計</button>
+          <button class="secondary-btn" id="themeBtn">🎨 テーマ</button>
           <button class="secondary-btn" id="settingsBtn">⚙️ 設定を変更</button>
         </div>
       </div>
@@ -161,6 +147,44 @@
       
       <div class="calendar-container" id="statsContainer">
         <!-- 統計カードはJSで動的生成 -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- テーマ選択モーダル -->
+  <div id="themeModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🎨 テーマを選択</h3>
+        <button class="close-btn" id="closeThemeModalBtn">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="theme-grid-full">
+          <button class="theme-btn active" data-theme="mystic">
+            <span class="theme-emoji">🔮</span>
+            <span class="theme-name">ミスティック・タロット</span>
+          </button>
+          <button class="theme-btn" data-theme="tropical">
+            <span class="theme-emoji">🌺</span>
+            <span class="theme-name">トロピカル・サマー</span>
+          </button>
+          <button class="theme-btn" data-theme="snow">
+            <span class="theme-emoji">🎄</span>
+            <span class="theme-name">ホリデー・スノー</span>
+          </button>
+          <button class="theme-btn" data-theme="sakura">
+            <span class="theme-emoji">🌸</span>
+            <span class="theme-name">サクラ・スプリング</span>
+          </button>
+          <button class="theme-btn" data-theme="ocean">
+            <span class="theme-emoji">🌊</span>
+            <span class="theme-name">オーシャン・ブリーズ</span>
+          </button>
+          <button class="theme-btn" data-theme="midnight">
+            <span class="theme-emoji">🌙</span>
+            <span class="theme-name">ミッドナイト・ドリーム</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>

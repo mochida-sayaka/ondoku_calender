@@ -23,6 +23,54 @@ const THEMES = {
       cardBg: 'rgba(255, 255, 255, 0.95)',
       text: '#1F2937'
     }
+  },
+  snow: {
+    name: 'ホリデー・スノー',
+    emoji: '🎄',
+    colors: {
+      primary: '#DC2626',
+      secondary: '#16A34A',
+      accent: '#F59E0B',
+      background: 'linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)',
+      cardBg: 'rgba(255, 255, 255, 0.95)',
+      text: '#1F2937'
+    }
+  },
+  sakura: {
+    name: 'サクラ・スプリング',
+    emoji: '🌸',
+    colors: {
+      primary: '#F9A8D4',
+      secondary: '#FDE047',
+      accent: '#86EFAC',
+      background: 'linear-gradient(135deg, #FFE5EC 0%, #FFC2D1 100%)',
+      cardBg: 'rgba(255, 255, 255, 0.95)',
+      text: '#1F2937'
+    }
+  },
+  ocean: {
+    name: 'オーシャン・ブリーズ',
+    emoji: '🌊',
+    colors: {
+      primary: '#0EA5E9',
+      secondary: '#06B6D4',
+      accent: '#94A3B8',
+      background: 'linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%)',
+      cardBg: 'rgba(255, 255, 255, 0.95)',
+      text: '#1F2937'
+    }
+  },
+  midnight: {
+    name: 'ミッドナイト・ドリーム',
+    emoji: '🌙',
+    colors: {
+      primary: '#818CF8',
+      secondary: '#A78BFA',
+      accent: '#C084FC',
+      background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
+      cardBg: 'rgba(255, 255, 255, 0.95)',
+      text: '#1F2937'
+    }
   }
 };
 

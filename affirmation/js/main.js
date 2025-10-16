@@ -97,6 +97,16 @@ function setupEventListeners() {
   document.getElementById('recordBtn').addEventListener('click', handleRecord);
   document.getElementById('completeBtn').addEventListener('click', handleComplete);
   
+// テーマボタン
+  document.getElementById('themeBtn').addEventListener('click', () => {
+    document.getElementById('themeModal').style.display = 'flex';
+  });
+  
+  // テーマモーダルを閉じる
+  document.getElementById('closeThemeModalBtn').addEventListener('click', () => {
+    document.getElementById('themeModal').style.display = 'none';
+  });
+  
   // テーマ選択
   document.querySelectorAll('.theme-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -107,6 +117,8 @@ function setupEventListeners() {
       // テーマを適用
       const themeId = btn.dataset.theme;
       window.applyTheme(themeId);
+      // モーダルを閉じる
+      document.getElementById('themeModal').style.display = 'none';
     });
   });
 
