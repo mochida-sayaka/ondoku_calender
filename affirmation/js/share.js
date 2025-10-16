@@ -1,5 +1,5 @@
 // ==============================================
-// シェア機能（画像DL、SNS）
+// シェア機能（Twitter + 画像DL）
 // ==============================================
 
 /**
@@ -8,6 +8,12 @@
 function openShareModalFromCompletion() {
   const modal = document.getElementById('shareModal');
   modal.style.display = 'flex';
+  
+  // シェアボタンにイベントリスナーを設定
+  const shareButtons = document.querySelectorAll('.share-option-btn');
+  shareButtons.forEach(btn => {
+    btn.onclick = () => handleSharePlatform(btn.dataset.platform);
+  });
 }
 
 /**
@@ -16,6 +22,41 @@ function openShareModalFromCompletion() {
 function closeShareModal() {
   const modal = document.getElementById('shareModal');
   modal.style.display = 'none';
+}
+
+/**
+ * 各プラットフォームへのシェア
+ */
+async function handleSharePlatform(platform) {
+  const day = window.appState.weeklyData.weeklyCards[window.appState.currentDayIndex];
+  
+  // 今日の全アファメーションをテキストに
+  const affirmationTexts = day.affirmations.map(aff => 
+    `"${aff.text}"\n（${aff.japanese}）`
+  ).join('\n\n');
+  
+  // シェアテキスト
+  const shareText = `今日のアファメーション 🌸\n\n${affirmationTexts}\n\n#音読カレンダー #英語学習`;
+  const shareUrl = window.location.href;
+  
+  switch (platform) {
+    case 'twitter':
+      shareToTwitter(shareText, shareUrl);
+      break;
+    case 'download':
+      await downloadAffirmationImage(day.affirmations);
+      break;
+  }
+  
+  closeShareModal();
+}
+
+/**
+ * Twitterにシェア
+ */
+function shareToTwitter(text, url) {
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+  window.open(twitterUrl, '_blank', 'width=600,height=400');
 }
 
 /**
@@ -149,9 +190,12 @@ async function downloadAffirmationImage(affirmations) {
  */
 async function getStatsForImage() {
   try {
+    // Firestoreから録音データを取得
+    const recordings = await window.fetchUserStats(window.appState.studentName);
+    
     // stats.js の関数を使用
     if (window.calculateStats) {
-      return await window.calculateStats();
+      return window.calculateStats(recordings);
     }
     
     // フォールバック

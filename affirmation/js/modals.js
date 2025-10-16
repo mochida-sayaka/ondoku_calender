@@ -1,5 +1,5 @@
 // ==============================================
-// モーダル関連の関数
+// モーダル表示機能
 // ==============================================
 
 /**
@@ -140,6 +140,59 @@ function resetAllProgress() {
     showSetupScreen();
     alert('✨ 進捗をリセットしました！新しい旅の始まりです。');
   }
+}
+
+/**
+ * 完了サマリーを表示
+ */
+function showCompletionSummary() {
+  const day = window.appState.weeklyData.weeklyCards[window.appState.currentDayIndex];
+  
+  // 今日のアファメーションリストを生成
+  const listHTML = day.affirmations.map(aff => `
+    <div class="completed-aff-item">
+      <div class="aff-bullet">✓</div>
+      <div class="aff-content">
+        <div class="aff-text">${aff.text}</div>
+        <div class="aff-japanese">${aff.japanese}</div>
+      </div>
+    </div>
+  `).join('');
+  
+  document.getElementById('completedAffirmationsList').innerHTML = listHTML;
+  document.getElementById('completionSummaryModal').style.display = 'flex';
+  
+  // 週の完了状況をチェック
+  const completedDays = window.appState.weeklyData.weeklyCards.filter(d => d.completed).length;
+  const isWeekComplete = completedDays === 7;
+  
+  // 紙吹雪を発動！
+  if (isWeekComplete) {
+    // 1週間完了：超派手バージョン
+    window.triggerConfetti({
+      count: 100,
+      colors: ['#9c27b0', '#e91e63', '#ffd700', '#2196f3', '#ffffff'],
+      duration: 4000,
+      size: { min: 8, max: 15 },
+      message: '🎉 今週コンプリート！'
+    });
+  } else {
+    // 毎日の完了：控えめバージョン
+    window.triggerConfetti({
+      count: 30,
+      colors: ['#9c27b0', '#e91e63'],
+      duration: 2000,
+      size: { min: 6, max: 10 }
+    });
+  }
+}
+
+/**
+ * 完了サマリーを閉じる
+ */
+function closeCompletionSummary() {
+  document.getElementById('completionSummaryModal').style.display = 'none';
+  showCalendar();
 }
 
 /**
@@ -303,7 +356,7 @@ function startNewWeek() {
 }
 
 /**
- * ヘルパー関数：日付フォーマット
+ * 日付をフォーマット
  */
 function formatDate(date) {
   const month = date.getMonth() + 1;
@@ -312,7 +365,7 @@ function formatDate(date) {
 }
 
 /**
- * ヘルパー関数：レベルアイコン取得
+ * レベルアイコンを取得
  */
 function getLevelIcon(level) {
   const icons = {
@@ -324,7 +377,7 @@ function getLevelIcon(level) {
 }
 
 /**
- * ヘルパー関数：レベル名取得
+ * レベル名を取得
  */
 function getLevelName(level) {
   const names = {
@@ -335,68 +388,13 @@ function getLevelName(level) {
   return names[level] || '';
 }
 
-/**
- * 完了サマリーを表示
- */
-function showCompletionSummary() {
-  const day = window.appState.weeklyData.weeklyCards[window.appState.currentDayIndex];
-  
-  // 今日のアファメーションリストを生成
-  const listHTML = day.affirmations.map(aff => `
-    <div class="completed-aff-item">
-      <div class="aff-bullet">✓</div>
-      <div class="aff-content">
-        <div class="aff-text">${aff.text}</div>
-        <div class="aff-japanese">${aff.japanese}</div>
-      </div>
-    </div>
-  `).join('');
-  
-  document.getElementById('completedAffirmationsList').innerHTML = listHTML;
-  document.getElementById('completionSummaryModal').style.display = 'flex';
-  
-  // 週の完了状況をチェック
-  const completedDays = window.appState.weeklyData.weeklyCards.filter(d => d.completed).length;
-  const isWeekComplete = completedDays === 7;
-  
-  // 紙吹雪を発動！
-  if (isWeekComplete) {
-    // 1週間完了：超派手バージョン
-    triggerConfetti({
-      count: 100,
-      colors: ['#9c27b0', '#e91e63', '#ffd700', '#2196f3', '#ffffff'],
-      duration: 4000,
-      size: { min: 8, max: 15 },
-      message: '🎉 今週コンプリート！'
-    });
-  } else {
-    // 毎日の完了：控えめバージョン
-    triggerConfetti({
-      count: 30,
-      colors: ['#9c27b0', '#e91e63'],
-      duration: 2000,
-      size: { min: 6, max: 10 }
-    });
-  }
-}
-
-/**
- * 完了サマリーを閉じる
- */
-function closeCompletionSummary() {
-  document.getElementById('completionSummaryModal').style.display = 'none';
-  showCalendar();
-}
-
 // グローバルに公開
-window.showLevelCompletionModal = showLevelCompletionModal;
-window.showAllLevelsCompletionModal = showAllLevelsCompletionModal;
-window.closeCompletionModal = closeCompletionModal;
-window.continueCurrentLevel = continueCurrentLevel;
-window.changeLevel = changeLevel;
-window.resetAllProgress = resetAllProgress;
+window.showCompletionSummary = showCompletionSummary;
+window.closeCompletionSummary = closeCompletionSummary;
 window.showWeekSummary = showWeekSummary;
 window.viewStatsFromSummary = viewStatsFromSummary;
 window.startNewWeek = startNewWeek;
-window.showCompletionSummary = showCompletionSummary;
-window.closeCompletionSummary = closeCompletionSummary;
+window.continueCurrentLevel = continueCurrentLevel;
+window.changeLevel = changeLevel;
+window.resetAllProgress = resetAllProgress;
+window.closeCompletionModal = closeCompletionModal;
