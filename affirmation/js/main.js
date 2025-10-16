@@ -779,18 +779,6 @@ async function handleSharePlatform(platform) {
     case 'twitter':
       shareToTwitter(shareText, shareUrl);
       break;
-    case 'facebook':
-      shareToFacebook(shareUrl);
-      break;
-    case 'line':
-      shareToLine(shareText, shareUrl);
-      break;
-    case 'instagram':
-      await shareToInstagram(day.affirmations);
-      break;
-    case 'copy':
-      await copyToClipboard(shareText + '\n' + shareUrl);
-      break;
     case 'download':
       await downloadAffirmationImage(day.affirmations);
       break;
@@ -1061,9 +1049,12 @@ async function downloadAffirmationImage(affirmations) {
 // 画像用の統計データを取得
 async function getStatsForImage() {
   try {
+    // Firestoreから録音データを取得
+    const recordings = await window.fetchUserStats(window.appState.studentName);
+    
     // stats.js の関数を使用
     if (window.calculateStats) {
-      return await window.calculateStats();
+      return window.calculateStats(recordings);
     }
     
     // フォールバック
@@ -1176,13 +1167,13 @@ async function showCardDrawAnimation(callback) {
   const skipBtn = overlay.querySelector('.skip-animation-btn');
   skipBtn.addEventListener('click', () => {
     isSkipped = true;
-    gsap.killTweensOf(overlay); // ← このoverlayだけ停止
+    gsap.killTweensOf(overlay);
     if (overlay.parentNode) {
         overlay.remove();
     }
-    if (callback) callback();
-    showCalendar();
-    });
+    // callback は後で実行されるので、ここでは呼ばない
+    // showCalendar() も後で呼ばれるので、ここでは呼ばない
+  });
 
   console.log('⏰ フェードイン開始'); // ← 追加
 
@@ -1217,8 +1208,8 @@ async function showCardDrawAnimation(callback) {
   // ステップ5: 完了メッセージ
   await showCompletionMessageGSAP(overlay);
   
-  // ステップ6: 実際のカード抽選処理（アニメーション後に実行）
-  if (callback) {
+// ステップ6: 実際のカード抽選処理（アニメーション後に実行）
+  if (callback && !isSkipped) {
     await callback();
   }
   
