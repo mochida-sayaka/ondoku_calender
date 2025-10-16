@@ -10,7 +10,8 @@ window.appState = {
   recordings: [],
   isRecording: false,
   mediaRecorder: null,
-  audioChunks: []
+  audioChunks: [],
+  recordingMimeType: 'audio/webm' // ← 追加
 };
 
 // アプリケーション初期化
@@ -403,21 +404,30 @@ async function handleRecord() {
 async function startRecording() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    window.appState.mediaRecorder = new MediaRecorder(stream);
+    
+    // iOS対応：サポートされているMIMEタイプを検出
+    let mimeType = 'audio/webm';
+    if (!MediaRecorder.isTypeSupported(mimeType)) {
+      mimeType = 'audio/mp4'; // iOSで使用
+    }
+    
+    window.appState.mediaRecorder = new MediaRecorder(stream, { mimeType });
     window.appState.audioChunks = [];
+    window.appState.recordingMimeType = mimeType; // 保存しておく
     
     window.appState.mediaRecorder.ondataavailable = (e) => {
       window.appState.audioChunks.push(e.data);
     };
     
     window.appState.mediaRecorder.onstop = () => {
-      const audioBlob = new Blob(window.appState.audioChunks, { type: 'audio/webm' });
+      const audioBlob = new Blob(window.appState.audioChunks, { 
+        type: window.appState.recordingMimeType // 検出したタイプを使用
+      });
       window.appState.recordings[window.appState.currentAffirmationIndex] = audioBlob;
       
       const audioUrl = URL.createObjectURL(audioBlob);
       document.getElementById('recordingAudio').src = audioUrl;
       document.getElementById('recordingPlayer').style.display = 'block';
-      
       document.getElementById('completeBtn').style.display = 'block';
     };
     
