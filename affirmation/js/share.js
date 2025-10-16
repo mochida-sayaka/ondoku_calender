@@ -72,11 +72,15 @@ async function downloadAffirmationImage(affirmations) {
     canvas.width = 1080;
     canvas.height = 1080;
     const ctx = canvas.getContext('2d');
+    
+    // テーマを取得
+    const theme = window.getCurrentTheme();
+    const themeEmoji = window.getThemeEmoji();
 
     // 背景（グラデーション）
     const gradient = ctx.createLinearGradient(0, 0, 0, 1080);
-    gradient.addColorStop(0, '#667eea');
-    gradient.addColorStop(1, '#764ba2');
+    gradient.addColorStop(0, theme.canvasColors.gradientStart);
+    gradient.addColorStop(1, theme.canvasColors.gradientEnd);
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, 1080, 1080);
 
@@ -86,20 +90,20 @@ async function downloadAffirmationImage(affirmations) {
     ctx.fill();
 
     // タイトル
-    ctx.fillStyle = '#4a148c';
+    ctx.fillStyle = theme.canvasColors.textDark;
     ctx.font = 'bold 50px "Arial", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('✨ Today\'s Affirmation', 540, 150);
+    ctx.fillText(`${themeEmoji} Today's Affirmation`, 540, 150);
 
     // 日付
-    ctx.fillStyle = '#7b1fa2';
+    ctx.fillStyle = theme.canvasColors.textLight;
     ctx.font = '30px "Arial", sans-serif';
     const date = new Date();
     const dateStr = `${date.getMonth() + 1}/${date.getDate()} (${['日', '月', '火', '水', '木', '金', '土'][date.getDay()]})`;
     ctx.fillText(dateStr, 540, 200);
 
     // 区切り線
-    ctx.strokeStyle = '#e1bee7';
+    ctx.strokeStyle = theme.canvasColors.textLight;
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(150, 230);
@@ -110,7 +114,7 @@ async function downloadAffirmationImage(affirmations) {
     let yPos = 280;
     affirmations.forEach((aff, index) => {
       // 英語
-      ctx.fillStyle = '#4a148c';
+      ctx.fillStyle = theme.canvasColors.textDark;
       ctx.font = 'bold 38px "Arial", sans-serif';
       ctx.textAlign = 'center';
       
@@ -122,7 +126,7 @@ async function downloadAffirmationImage(affirmations) {
       });
 
       // 日本語
-      ctx.fillStyle = '#7b1fa2';
+      ctx.fillStyle = theme.canvasColors.textLight;
       ctx.font = '28px "Arial", sans-serif';
       const jpLines = wrapText(ctx, aff.japanese, 850);
       jpLines.forEach(line => {
@@ -136,18 +140,18 @@ async function downloadAffirmationImage(affirmations) {
     // 統計情報セクション（背景）
     const statsY = Math.min(yPos + 20, 650);
     const statsHeight = 250;
-    ctx.fillStyle = '#f3e5f5';
+    ctx.fillStyle = 'rgba(243, 229, 245, 0.5)'; // 薄い背景
     roundRect(ctx, 150, statsY, 780, statsHeight, 20);
     ctx.fill();
 
     // 統計タイトル
-    ctx.fillStyle = '#4a148c';
+    ctx.fillStyle = theme.canvasColors.textDark;
     ctx.font = 'bold 35px "Arial", sans-serif';
-    ctx.fillText('📊 My Progress', 540, statsY + 60);
+    ctx.fillText(`${themeEmoji} My Progress`, 540, statsY + 60);
 
     // 統計データ
     ctx.font = '28px "Arial", sans-serif';
-    ctx.fillStyle = '#6a1b9a';
+    ctx.fillStyle = theme.canvasColors.textLight;
     ctx.textAlign = 'left';
 
     const statsList = [
@@ -163,10 +167,10 @@ async function downloadAffirmationImage(affirmations) {
     });
 
     // ロゴ・URL
-    ctx.fillStyle = '#9c27b0';
+    ctx.fillStyle = theme.canvasColors.textLight;
     ctx.font = '24px "Arial", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('🔮 Affirmation Calendar', 540, 1020);
+    ctx.fillText(`${themeEmoji} Affirmation Calendar`, 540, 1020);
 
     // ダウンロード
     canvas.toBlob(blob => {

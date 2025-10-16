@@ -62,7 +62,7 @@ function createCalendarCell(day, index) {
       <div class="date-label">${dateLabel}</div>
     </div>
     <div class="calendar-cell-body">
-      <div class="card-icon">${day.completed ? '✅' : '🔮'}</div>
+      <div class="card-icon">${day.completed ? '✅' : window.getThemeEmoji()}</div>
     </div>
     <div class="calendar-cell-footer">
       <div class="affirmation-count">${day.affirmations.length}文</div>

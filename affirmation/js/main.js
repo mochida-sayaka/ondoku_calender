@@ -107,7 +107,7 @@ function setupEventListeners() {
     document.getElementById('themeModal').style.display = 'none';
   });
   
-  // テーマ選択
+// テーマ選択
   document.querySelectorAll('.theme-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       // すべてのボタンからactiveを削除
@@ -117,8 +117,7 @@ function setupEventListeners() {
       // テーマを適用
       const themeId = btn.dataset.theme;
       window.applyTheme(themeId);
-      // モーダルを閉じる
-      document.getElementById('themeModal').style.display = 'none';
+      // モーダルは閉じない（着せ替えのように試せる）
     });
   });
 

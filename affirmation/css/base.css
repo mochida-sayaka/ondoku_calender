@@ -5,6 +5,7 @@
   --color-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --color-card-bg: rgba(255, 255, 255, 0.95);
   --color-text: #1F2937;
+  --color-overlay-bg: linear-gradient(135deg, rgba(123, 31, 162, 0.95), rgba(103, 58, 183, 0.95));
 }
 
 /* 基本スタイル */
@@ -71,7 +72,7 @@ h1 {
 .primary-btn {
   width: 100%;
   padding: 1rem;
-  background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
   color: white;
   border: none;
   border-radius: 12px;
@@ -83,7 +84,7 @@ h1 {
 
 .primary-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 10px 20px rgba(var(--color-primary), 0.3);
 }
 
 .primary-btn:disabled {
@@ -94,8 +95,8 @@ h1 {
 .secondary-btn {
   padding: 0.5rem 1rem;
   background: white;
-  color: #8b5cf6;
-  border: 2px solid #8b5cf6;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
   border-radius: 8px;
   font-size: 0.875rem;
   font-weight: 600;
@@ -104,7 +105,7 @@ h1 {
 }
 
 .secondary-btn:hover {
-  background: #8b5cf6;
+  background: var(--color-primary);
   color: white;
 }
 
@@ -137,7 +138,7 @@ input[type="text"] {
 
 input[type="text"]:focus {
   outline: none;
-  border-color: #8b5cf6;
+  border-color: var(--color-primary);
 }
 
 /* ヒントテキスト */
@@ -187,15 +188,15 @@ input[type="text"]:focus {
 .mood-btn:hover,
 .level-btn:hover,
 .count-btn:hover {
-  border-color: #8b5cf6;
+  border-color: var(--color-primary);
   transform: translateY(-2px);
 }
 
 .mood-btn.selected,
 .level-btn.selected,
 .count-btn.selected {
-  border-color: #8b5cf6;
-  background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+  border-color: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
   color: white;
 }
 
@@ -265,15 +266,16 @@ input[type="text"]:focus {
 /* ボタンが光る（準備完了） */
 .primary-btn.ready {
   animation: pulse 2s ease-in-out infinite;
-  box-shadow: 0 0 30px rgba(139, 92, 246, 0.8);
 }
 
 @keyframes pulse {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
+    box-shadow: 0 0 20px var(--color-primary);
+    filter: brightness(1);
   }
   50% {
-    box-shadow: 0 0 40px rgba(139, 92, 246, 1);
+    box-shadow: 0 0 40px var(--color-primary);
+    filter: brightness(1.1);
   }
 }
 
@@ -296,7 +298,6 @@ input[type="text"]:focus {
     grid-template-columns: repeat(2, 1fr);
   }
 }
-
 
 .theme-btn {
   background: white;
