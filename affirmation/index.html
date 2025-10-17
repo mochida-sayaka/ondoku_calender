@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🔮 アファメーションカレンダー</title>
   
+  <!-- PWA設定 -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#8B5CF6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="音読カレンダー">
+
   <!-- CSS -->
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/screens.css">
@@ -92,7 +99,6 @@
         <h2 id="weekRange"></h2>
         <div style="display: flex; gap: 0.5rem;">
           <button class="secondary-btn" id="statsBtn">📊 統計</button>
-          <button class="secondary-btn" id="themeBtn">🎨 テーマ</button>
           <button class="secondary-btn" id="settingsBtn">⚙️ 設定を変更</button>
         </div>
       </div>
@@ -151,40 +157,87 @@
     </div>
   </div>
   
-  <!-- テーマ選択モーダル -->
-  <div id="themeModal" class="modal" style="display: none;">
+  <!-- 設定モーダル -->
+  <div id="settingsModal" class="modal" style="display: none;">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>🎨 テーマを選択</h3>
-        <button class="close-btn" id="closeThemeModalBtn">×</button>
+        <h3>⚙️ 設定</h3>
+        <button class="close-btn" id="closeSettingsModalBtn">×</button>
       </div>
       <div class="modal-body">
-        <div class="theme-grid-full">
-          <button class="theme-btn active" data-theme="mystic">
-            <span class="theme-emoji">🔮</span>
-            <span class="theme-name">ミスティック・タロット</span>
+        
+        <!-- テーマ選択（アコーディオン） -->
+        <div class="accordion-item">
+          <button class="accordion-header" data-target="theme-content">
+            <span>🎨 テーマ選択</span>
+            <span class="accordion-icon">▼</span>
           </button>
-          <button class="theme-btn" data-theme="tropical">
-            <span class="theme-emoji">🌺</span>
-            <span class="theme-name">トロピカル・サマー</span>
-          </button>
-          <button class="theme-btn" data-theme="snow">
-            <span class="theme-emoji">🎄</span>
-            <span class="theme-name">ホリデー・スノー</span>
-          </button>
-          <button class="theme-btn" data-theme="sakura">
-            <span class="theme-emoji">🌸</span>
-            <span class="theme-name">サクラ・スプリング</span>
-          </button>
-          <button class="theme-btn" data-theme="ocean">
-            <span class="theme-emoji">🌊</span>
-            <span class="theme-name">オーシャン・ブリーズ</span>
-          </button>
-          <button class="theme-btn" data-theme="midnight">
-            <span class="theme-emoji">🌙</span>
-            <span class="theme-name">ミッドナイト・ドリーム</span>
-          </button>
+          <div class="accordion-content" id="theme-content">
+            <div class="theme-grid-full">
+              <button class="theme-btn active" data-theme="mystic">
+                <span class="theme-emoji">🔮</span>
+                <span class="theme-name">ミスティック・タロット</span>
+              </button>
+              <button class="theme-btn" data-theme="tropical">
+                <span class="theme-emoji">🌺</span>
+                <span class="theme-name">トロピカル・サマー</span>
+              </button>
+              <button class="theme-btn" data-theme="snow">
+                <span class="theme-emoji">🎄</span>
+                <span class="theme-name">ホリデー・スノー</span>
+              </button>
+              <button class="theme-btn" data-theme="sakura">
+                <span class="theme-emoji">🌸</span>
+                <span class="theme-name">サクラ・スプリング</span>
+              </button>
+              <button class="theme-btn" data-theme="ocean">
+                <span class="theme-emoji">🌊</span>
+                <span class="theme-name">オーシャン・ブリーズ</span>
+              </button>
+              <button class="theme-btn" data-theme="midnight">
+                <span class="theme-emoji">🌙</span>
+                <span class="theme-name">ミッドナイト・ドリーム</span>
+              </button>
+            </div>
+          </div>
         </div>
+        
+        <!-- 通知設定（アコーディオン） -->
+        <div class="accordion-item">
+          <button class="accordion-header" data-target="notification-content">
+            <span>🔔 通知設定</span>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-content" id="notification-content">
+            <div class="notification-settings">
+              <label class="toggle-label">
+                <input type="checkbox" id="notificationToggle">
+                <span class="toggle-slider"></span>
+                <span class="toggle-text">通知を有効にする</span>
+              </label>
+              <div class="time-setting" id="timeSetting" style="display: none;">
+                <label for="notificationTime">通知時刻</label>
+                <input type="time" id="notificationTime" value="09:00">
+                <p class="hint-text">💡 毎日この時間に音読の通知が届きます</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- カレンダーリセット（アコーディオン） -->
+        <div class="accordion-item">
+          <button class="accordion-header" data-target="reset-content">
+            <span>🔄 カレンダーをリセット</span>
+            <span class="accordion-icon">▼</span>
+          </button>
+          <div class="accordion-content" id="reset-content">
+            <div class="reset-section">
+              <p class="warning-text">⚠️ 今週のカードと設定がリセットされます</p>
+              <button class="danger-btn" id="resetCalendarBtn">カレンダーをリセット</button>
+            </div>
+          </div>
+        </div>
+        
       </div>
     </div>
   </div>
@@ -258,7 +311,20 @@
   <script src="js/theme.js"></script>
   <script src="js/main.js"></script>
 
-</body>
+  <!-- Service Worker 登録 -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/ondoku_calender/affirmation/service-worker.js')
+          .then((registration) => {
+            console.log('✅ Service Worker登録成功:', registration.scope);
+          })
+          .catch((error) => {
+            console.log('❌ Service Worker登録失敗:', error);
+          });
+      });
+    }
+  </script>
 
 </body>
 </html>

@@ -55,6 +55,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupEventListeners();
   
   console.log('✅ 初期化完了');
+
+  // 通知設定を読み込み
+  loadNotificationSettings();
+
 });
 
 // 全選択チェック→ボタンを光らせる
@@ -88,7 +92,9 @@ function setupEventListeners() {
   
   // カレンダー画面
   document.getElementById('statsBtn').addEventListener('click', showStatsScreen);
-  document.getElementById('settingsBtn').addEventListener('click', handleResetSettings);
+  document.getElementById('settingsBtn').addEventListener('click', () => {
+    document.getElementById('settingsModal').style.display = 'flex';
+  });
   
   // アファメーション画面
   document.getElementById('backBtn').addEventListener('click', showCalendar);
@@ -97,29 +103,56 @@ function setupEventListeners() {
   document.getElementById('recordBtn').addEventListener('click', handleRecord);
   document.getElementById('completeBtn').addEventListener('click', handleComplete);
   
-// テーマボタン
-  document.getElementById('themeBtn').addEventListener('click', () => {
-    document.getElementById('themeModal').style.display = 'flex';
-  });
-  
-  // テーマモーダルを閉じる
-  document.getElementById('closeThemeModalBtn').addEventListener('click', () => {
-    document.getElementById('themeModal').style.display = 'none';
-  });
-  
-// テーマ選択
-  document.querySelectorAll('.theme-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      // すべてのボタンからactiveを削除
-      document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-      // クリックされたボタンにactiveを追加
-      btn.classList.add('active');
-      // テーマを適用
-      const themeId = btn.dataset.theme;
-      window.applyTheme(themeId);
-      // モーダルは閉じない（着せ替えのように試せる）
+    // 設定モーダルを閉じる
+    document.getElementById('closeSettingsModalBtn').addEventListener('click', () => {
+        document.getElementById('settingsModal').style.display = 'none';
     });
-  });
+    
+    // アコーディオンの開閉
+    document.querySelectorAll('.accordion-header').forEach(header => {
+        header.addEventListener('click', () => {
+        const targetId = header.dataset.target;
+        const content = document.getElementById(targetId);
+        
+        // 開閉トグル
+        header.classList.toggle('active');
+        content.classList.toggle('open');
+        });
+    });
+    
+    // テーマ選択
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+        // すべてのボタンからactiveを削除
+        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+        // クリックされたボタンにactiveを追加
+        btn.classList.add('active');
+        // テーマを適用
+        const themeId = btn.dataset.theme;
+        window.applyTheme(themeId);
+        });
+    });
+    
+    // 通知トグル
+    document.getElementById('notificationToggle').addEventListener('change', (e) => {
+        const timeSetting = document.getElementById('timeSetting');
+        if (e.target.checked) {
+        timeSetting.style.display = 'flex';
+        requestNotificationPermission();
+        } else {
+        timeSetting.style.display = 'none';
+        disableNotifications();
+        }
+    });
+    
+    // 通知時刻の変更
+    document.getElementById('notificationTime').addEventListener('change', (e) => {
+        saveNotificationTime(e.target.value);
+        scheduleNotification(e.target.value);
+    });
+    
+    // カレンダーリセット
+    document.getElementById('resetCalendarBtn').addEventListener('click', handleResetSettings);
 
   // 統計画面
   document.getElementById('backToCalendarBtn').addEventListener('click', showCalendar);
@@ -499,5 +532,151 @@ async function handleComplete() {
   } finally {
     btn.disabled = false;
     btn.innerHTML = '✨ 完了して送信';
+  }
+}
+
+// ==============================================
+// 通知機能
+// ==============================================
+
+/**
+ * 通知許可をリクエスト
+ */
+async function requestNotificationPermission() {
+  if (!('Notification' in window)) {
+    alert('このブラウザは通知機能に対応していません');
+    return false;
+  }
+  
+  if (Notification.permission === 'granted') {
+    console.log('✅ 通知許可済み');
+    return true;
+  }
+  
+  if (Notification.permission !== 'denied') {
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      console.log('✅ 通知が許可されました');
+      localStorage.setItem('notificationEnabled', 'true');
+      
+    // テスト通知を送信（Service Worker経由）
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        const theme = window.getCurrentTheme();
+        navigator.serviceWorker.controller.postMessage({
+          type: 'SEND_TEST_NOTIFICATION',
+          theme: theme
+        });
+      } else {
+        // フォールバック
+        new Notification('🔮 音読カレンダー', {
+          body: '通知が有効になりました！毎日この時間にリマインドします'
+        });
+      }
+      
+      return true;
+    } else {
+      console.log('❌ 通知が拒否されました');
+      document.getElementById('notificationToggle').checked = false;
+      return false;
+    }
+  }
+  
+  alert('通知が拒否されています。ブラウザの設定から許可してください');
+  document.getElementById('notificationToggle').checked = false;
+  return false;
+}
+
+/**
+ * 通知を無効化
+ */
+function disableNotifications() {
+  localStorage.setItem('notificationEnabled', 'false');
+  localStorage.removeItem('notificationTime');
+  console.log('🔕 通知を無効化しました');
+}
+
+/**
+ * 通知時刻を保存
+ */
+function saveNotificationTime(time) {
+  localStorage.setItem('notificationTime', time);
+  console.log(`⏰ 通知時刻を保存: ${time}`);
+}
+
+/**
+ * 通知をスケジュール
+ */
+function scheduleNotification(time) {
+  // Service Workerに通知スケジュールを依頼
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    const theme = window.getCurrentTheme();
+    navigator.serviceWorker.controller.postMessage({
+      type: 'SCHEDULE_NOTIFICATION',
+      time: time,
+      theme: theme
+    });
+    console.log(`⏰ Service Workerに通知をスケジュール: ${time}`);
+  } else {
+    console.warn('⚠️ Service Workerが利用できません。通常の通知にフォールバック');
+    scheduleNotificationFallback(time);
+  }
+}
+
+/**
+ * フォールバック：Service Worker未対応の場合
+ */
+function scheduleNotificationFallback(time) {
+  const [hours, minutes] = time.split(':');
+  const now = new Date();
+  const scheduledTime = new Date();
+  scheduledTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+  
+  if (scheduledTime <= now) {
+    scheduledTime.setDate(scheduledTime.getDate() + 1);
+  }
+  
+  const delay = scheduledTime - now;
+  
+  setTimeout(() => {
+    sendNotification();
+    scheduleNotificationFallback(time);
+  }, delay);
+  
+  console.log(`⏰ 次の通知（フォールバック）: ${scheduledTime.toLocaleString()}`);
+}
+
+/**
+ * 通知を送信
+ */
+function sendNotification() {
+  if (Notification.permission === 'granted') {
+    const theme = window.getCurrentTheme();
+    new Notification(`${theme.emoji} 今日の音読時間です！`, {
+      body: '今日のアファメーションを音読しましょう 🎤',
+      tag: 'daily-affirmation',
+      requireInteraction: false
+    });
+  }
+}
+
+/**
+ * 通知設定を読み込み
+ */
+function loadNotificationSettings() {
+  const enabled = localStorage.getItem('notificationEnabled') === 'true';
+  const time = localStorage.getItem('notificationTime') || '09:00';
+  
+  const toggle = document.getElementById('notificationToggle');
+  const timeInput = document.getElementById('notificationTime');
+  const timeSetting = document.getElementById('timeSetting');
+  
+  if (toggle && timeInput) {
+    toggle.checked = enabled;
+    timeInput.value = time;
+    
+    if (enabled) {
+      timeSetting.style.display = 'flex';
+      scheduleNotification(time);
+    }
   }
 }

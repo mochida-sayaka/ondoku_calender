@@ -1,0 +1,24 @@
+{
+  "name": "音読カレンダー - アファメーション",
+  "short_name": "音読カレンダー",
+  "description": "毎日のアファメーションを音読して英語学習",
+  "start_url": "/ondoku_calender/affirmation/",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#8B5CF6",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🔮</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🔮</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
