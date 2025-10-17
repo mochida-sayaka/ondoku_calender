@@ -1,7 +1,7 @@
 // Firebase操作サービス
 
 // Firestoreインポート（動的に取得）
-let collection, query, where, getDocs, addDoc, serverTimestamp;
+let collection, query, where, getDocs, addDoc, serverTimestamp, doc, setDoc, getDoc;
 let ref, uploadBytes, getDownloadURL;
 
 // Firebase SDKをロード
@@ -13,6 +13,9 @@ async function loadFirebaseSDK() {
   getDocs = firestoreModule.getDocs;
   addDoc = firestoreModule.addDoc;
   serverTimestamp = firestoreModule.serverTimestamp;
+  doc = firestoreModule.doc;
+  setDoc = firestoreModule.setDoc;
+  getDoc = firestoreModule.getDoc;
   
   const storageModule = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js');
   ref = storageModule.ref;
@@ -72,7 +75,7 @@ async function drawWeeklyCards(settings) {
   
   if (available.length >= needed) {
     // 十分ある！
-    return createWeeklyData(window.utils.pickRandomItems(available, needed), settings);
+    return await createWeeklyData(window.utils.pickRandomItems(available, needed), settings);
   }
   
   // 優先度2: 同じレベル + 全ムード の未使用文
@@ -93,16 +96,16 @@ async function drawWeeklyCards(settings) {
     console.log('🎉 このレベルはコンプリート済み！再抽選します');
     // コンプ済みでも同じレベルから再抽選
     available = await fetchAffirmations({ level });
-    return createWeeklyData(window.utils.pickRandomItems(available, needed), settings, true);
+    return await createWeeklyData(window.utils.pickRandomItems(available, needed), settings, true);
   }
   
   // 足りない分は使える文を全部使う
   console.log(`⚠️ 未使用文が足りません。残り${available.length}件を全部使います`);
-  return createWeeklyData(available, settings);
+  return await createWeeklyData(available, settings);
 }
 
 // 週間データを作成
-function createWeeklyData(affirmations, settings, isRepeating = false) {
+async function createWeeklyData(affirmations, settings, isRepeating = false) {
   const weeklyCards = [];
   const today = new Date();
   const startDate = new Date(today);
@@ -131,9 +134,10 @@ function createWeeklyData(affirmations, settings, isRepeating = false) {
     });
   }
   
-  // LocalStorageに保存
   const weekRange = window.utils.getWeekRange(startDate);
+  const user = window.getCurrentUser();
   const weeklyData = {
+    studentName: user.displayName,
     weekStartDate: weekRange.start,
     weekEndDate: weekRange.end,
     settings: settings,
@@ -141,7 +145,11 @@ function createWeeklyData(affirmations, settings, isRepeating = false) {
     isRepeating: isRepeating // コンプ後の再抽選フラグ
   };
   
-  localStorage.setItem('weeklyData', JSON.stringify(weeklyData));
+  // Firestoreに保存（ユーザーIDベース）
+  if (user) {
+    await window.saveUserData(user.uid, weeklyData);
+  }
+  
   window.appState.weeklyData = weeklyData;
   
   console.log('✅ カード抽選完了', weeklyData);
@@ -190,15 +198,6 @@ async function uploadRecordingsToFirebase() {
     console.log(`✅ アップロード完了: ${filename}`);
   }
   
-  // Firestoreにメタデータを保存
-  await addDoc(collection(window.db, 'recordings'), {
-    studentName: studentName,
-    date: day.date,
-    files: uploadedFiles,
-    settings: window.appState.weeklyData.settings,
-    createdAt: serverTimestamp()
-  });
-  
   // 完了状態を更新
   day.completed = true;
   
@@ -214,7 +213,19 @@ async function uploadRecordingsToFirebase() {
     localStorage.setItem('justCompletedLevel', window.appState.weeklyData.settings.level);
   }
   
-  localStorage.setItem('weeklyData', JSON.stringify(window.appState.weeklyData));
+  // ユーザーの週データを更新（Firestoreに保存）
+  const user = window.getCurrentUser();
+  if (user) {
+    await window.saveUserData(user.uid, window.appState.weeklyData);
+  }
+  
+  // Firestoreにレコーディングメタデータも保存
+  await addDoc(collection(window.db, 'users', user.uid, 'recordings'), {
+    date: day.date,
+    files: uploadedFiles,
+    settings: window.appState.weeklyData.settings,
+    createdAt: serverTimestamp()
+  });
   
   console.log('🎉 Firestoreに保存完了');
 }
@@ -247,3 +258,7 @@ window.fetchAffirmations = fetchAffirmations;
 window.drawWeeklyCards = drawWeeklyCards;
 window.uploadRecordingsToFirebase = uploadRecordingsToFirebase;
 window.fetchUserStats = fetchUserStats;
+// Firestore関数も公開
+window.doc = doc;
+window.setDoc = setDoc;
+window.getDoc = getDoc;

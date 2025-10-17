@@ -1,6 +1,6 @@
 // Firebase設定
 const firebaseConfig = {
-  apiKey: "AIzaSyB1Z5kXS----(本体はちゃんと入ってる)",
+  apiKey: "AIzaSyB1Z5kXS2Bl6tpnjmLzxSU7GyhMVuGm0HI",
   authDomain: "affirmation-calendar-2975e.firebaseapp.com",
   projectId: "affirmation-calendar-2975e",
   storageBucket: "affirmation-calendar-2975e.firebasestorage.app",
@@ -10,13 +10,14 @@ const firebaseConfig = {
 };
 
 // Firebaseを初期化
-let db, storage;
+let db, storage, auth;
 
 function initFirebase() {
   const app = window.initializeApp(firebaseConfig);
   db = window.getFirestore(app);
   storage = window.getStorage(app);
-  return { db, storage };
+  auth = window.getAuth(app);
+  return { db, storage, auth };
 }
 
 // グローバルに公開

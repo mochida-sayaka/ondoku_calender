@@ -19,46 +19,55 @@ document.addEventListener('DOMContentLoaded', async () => {
   console.log('🚀 アプリケーション起動');
   
   // Firebaseを初期化
-  const { db: database, storage: storageInstance } = window.initFirebase();
+  const { db: database, storage: storageInstance, auth: authInstance } = window.initFirebase();
   window.db = database;
   window.storage = storageInstance;
+  window.auth = authInstance;
+
+  // 最初は全画面を非表示
+  document.querySelectorAll('.screen').forEach(screen => {
+    screen.style.display = 'none';
+  });
   
-  // LocalStorageから名前を読み込み
-  const savedName = localStorage.getItem('studentName');
-  if (savedName) {
-    window.appState.studentName = savedName;
-    document.getElementById('studentNameInput').value = savedName;
-  }
-  
-  // LocalStorageから週データを読み込み
-  const savedWeekData = localStorage.getItem('weeklyData');
-  if (savedWeekData) {
-    window.appState.weeklyData = JSON.parse(savedWeekData);
-    
-    // 週が終了しているかチェック
-    const today = new Date().toISOString().split('T')[0];
-    const weekEnd = window.appState.weeklyData.weekEndDate;
-    
-    if (today <= weekEnd) {
-      // 週がまだ続いているのでカレンダーを表示
-      showCalendar();
+  // 認証状態を監視
+  window.observeAuthState(async (user) => {
+    if (user) {
+      console.log('✅ ログイン済み:', user.displayName);
+      
+      // ユーザー固有のデータを読み込み
+      await loadUserData(user.uid);
+      
+      // 週データがあるかチェック
+      if (window.appState.weeklyData) {
+        // 週が終了しているかチェック
+        const today = new Date().toISOString().split('T')[0];
+        const weekEnd = window.appState.weeklyData.weekEndDate;
+        
+        if (today <= weekEnd) {
+          // 週がまだ続いているのでカレンダーを表示
+          showCalendar();
+        } else {
+          // 週が終了した！サマリーを表示
+          window.showWeekSummary();
+        }
+      } else {
+        // 初回起動
+        showSetupScreen();
+      }
+      
+      // 通知設定を読み込み
+      loadNotificationSettings();
     } else {
-      // 週が終了した！サマリーを表示
-      window.showWeekSummary();
+      console.log('❌ 未ログイン');
+      // ログイン画面を表示
+      showLoginScreen();
     }
-  } else {
-    // 初回起動
-    showSetupScreen();
-  }
+  });
   
   // イベントリスナーを設定
   setupEventListeners();
   
   console.log('✅ 初期化完了');
-
-  // 通知設定を読み込み
-  loadNotificationSettings();
-
 });
 
 // 全選択チェック→ボタンを光らせる
@@ -82,8 +91,56 @@ document.getElementById('studentNameInput').addEventListener('input', () => {
   checkAllSelected();
 });
 
+// ==============================================
+// ユーザーデータ管理
+// ==============================================
+
+/**
+ * ユーザーデータを読み込み
+ */
+async function loadUserData(uid) {
+  try {
+    // Firestoreからユーザーの週データを取得
+    const weekDataRef = window.doc(window.db, 'users', uid, 'weekData', 'current');
+    const weekDataSnap = await window.getDoc(weekDataRef);
+    
+    if (weekDataSnap.exists()) {
+      const data = weekDataSnap.data();
+      window.appState.weeklyData = data;
+      window.appState.studentName = data.studentName || window.getCurrentUser().displayName;
+      console.log('✅ ユーザーデータ読み込み成功');
+    } else {
+      console.log('📝 新規ユーザー：データなし');
+      window.appState.studentName = window.getCurrentUser().displayName;
+    }
+  } catch (error) {
+    console.error('❌ ユーザーデータ読み込みエラー:', error);
+  }
+}
+
+/**
+ * ユーザーデータを保存
+ */
+async function saveUserData(uid, data) {
+  try {
+    const weekDataRef = window.doc(window.db, 'users', uid, 'weekData', 'current');
+    await window.setDoc(weekDataRef, data, { merge: true });
+    console.log('✅ ユーザーデータ保存成功');
+  } catch (error) {
+    console.error('❌ ユーザーデータ保存エラー:', error);
+    throw error;
+  }
+}
+
+// グローバルに公開
+window.loadUserData = loadUserData;
+window.saveUserData = saveUserData;
+
 // イベントリスナー設定
 function setupEventListeners() {
+  // ログイン画面
+  document.getElementById('googleLoginBtn')?.addEventListener('click', loginWithGoogle);
+  
   // 設定画面
   setupMoodSelection();
   setupLevelSelection();
@@ -95,6 +152,7 @@ function setupEventListeners() {
   document.getElementById('settingsBtn').addEventListener('click', () => {
     document.getElementById('settingsModal').style.display = 'flex';
   });
+  document.getElementById('logoutBtn').addEventListener('click', window.logout);
   
   // アファメーション画面
   document.getElementById('backBtn').addEventListener('click', showCalendar);
@@ -271,36 +329,24 @@ async function handleDrawCards(e) {
 }
 
 // 設定リセット
-function handleResetSettings() {
+async function handleResetSettings() {
   if (confirm('設定を変更すると、今週のカードがリセットされます。\n本当に変更しますか？')) {
+    // Firestoreのユーザーデータを削除
+    const user = window.getCurrentUser();
+    if (user) {
+      await window.saveUserData(user.uid, { weeklyData: null });
+    }
+    
+    // LocalStorageとアプリステートをクリア
     localStorage.removeItem('weeklyData');
     window.appState.weeklyData = null;
-    location.reload();
+    
+    // 設定モーダルを閉じる
+    document.getElementById('settingsModal').style.display = 'none';
+    
+    // セットアップ画面に遷移
+    window.showSetupScreen();
   }
-}
-
-// 画面表示制御
-function showSetupScreen() {
-  document.getElementById('setupScreen').style.display = 'block';
-  document.getElementById('calendarScreen').style.display = 'none';
-  document.getElementById('affirmationScreen').style.display = 'none';
-  document.getElementById('statsScreen').style.display = 'none';
-}
-
-function showCalendar() {
-  document.getElementById('setupScreen').style.display = 'none';
-  document.getElementById('calendarScreen').style.display = 'block';
-  document.getElementById('affirmationScreen').style.display = 'none';
-  document.getElementById('statsScreen').style.display = 'none';
-  
-  // レベルコンプリート確認
-  const justCompletedLevel = localStorage.getItem('justCompletedLevel');
-  if (justCompletedLevel) {
-    localStorage.removeItem('justCompletedLevel');
-    setTimeout(() => showLevelCompletionModal(justCompletedLevel), 500);
-  }
-  
-  window.renderCalendar();
 }
 
 // レベルコンプリートモーダルを表示
@@ -401,15 +447,6 @@ function showAllLevelsCompletionModal() {
   `;
   
   document.body.insertAdjacentHTML('beforeend', modalHTML);
-}
-
-function showStatsScreen() {
-  document.getElementById('setupScreen').style.display = 'none';
-  document.getElementById('calendarScreen').style.display = 'none';
-  document.getElementById('affirmationScreen').style.display = 'none';
-  document.getElementById('statsScreen').style.display = 'block';
-  
-  window.loadAndDisplayStats();
 }
 
 // 日本語表示切り替え
