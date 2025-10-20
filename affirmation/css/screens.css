@@ -1,97 +1,248 @@
 /* 画面別スタイル */
 
-/* カレンダー画面 */
-.calendar-container {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.75rem;
-  margin-top: 1.5rem;
+/* ========================================
+   カレンダー画面（月間カレンダー）
+======================================== */
+
+/* カレンダーヘッダー */
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex: 1;
+  max-width: 400px;
 }
 
+.month-nav-btn {
+  background: var(--card-bg);
+  border: 2px solid var(--border-color);
+  color: var(--text-color);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.month-nav-btn:hover:not(:disabled) {
+  background: var(--primary-color);
+  color: white;
+  transform: scale(1.1);
+}
+
+.month-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.month-title {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  margin: 0;
+  text-align: center;
+}
+
+/* 曜日ヘッダー */
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  padding: 0 1rem;
+  margin-bottom: 0.5rem;
+  margin-top: 1rem;
+}
+
+.weekday {
+  text-align: center;
+  font-weight: bold;
+  color: var(--text-secondary);
+  padding: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* 月間カレンダーグリッド */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+/* カレンダーセル */
 .calendar-cell {
+  aspect-ratio: 1;
   background: white;
   border: 2px solid #e5e7eb;
   border-radius: 12px;
-  padding: 0.75rem;
-  text-align: center;
-  transition: all 0.2s;
-  min-height: 120px;
+  padding: 0.5rem;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-}
-
-.calendar-cell:hover:not(.disabled) {
-  border-color: #8b5cf6;
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(139, 92, 246, 0.2);
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.3s ease;
   cursor: pointer;
 }
 
-.calendar-cell.today {
-  border-color: #8b5cf6;
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(167, 139, 250, 0.1) 100%);
+.calendar-cell.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
+.calendar-cell.other-month {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* 今日のセル - 優先度を上げる */
+.calendar-cell.today {
+  background: #fef3c7 !important;
+  border-color: #fbbf24 !important;
+  animation: pulse 2s infinite;
+}
+
+/* 今日かつ完了済み */
+.calendar-cell.today.completed {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%) !important;
+  border-color: #fbbf24 !important;
+  box-shadow: 0 0 0 3px #fef3c7;
+}
+
+/* 今日かつ一部完了 */
+.calendar-cell.today.partial {
+  background: #fed7aa !important;
+  border-color: #fbbf24 !important;
+  box-shadow: 0 0 0 3px #fef3c7;
+}
+
+/* 今日かつ未完了 */
+.calendar-cell.today.incomplete {
+  background: #fef3c7 !important;
+  border-color: #fbbf24 !important;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* disabledの場合でもtodayなら黄色にする */
+.calendar-cell.today.disabled {
+  background: #fef3c7 !important;
+  border-color: #fbbf24 !important;
+  opacity: 1 !important;
+  cursor: pointer !important;
+}
+
+/* コンプリート */
 .calendar-cell.completed {
   background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
   border-color: #10b981;
   color: white;
 }
 
-.calendar-cell.future {
-  opacity: 0.5;
+/* 一部完了 */
+.calendar-cell.partial {
+  background: #fed7aa;
+  border-color: #fb923c;
 }
 
-.calendar-cell.disabled {
-  cursor: not-allowed;
+/* 未完了 */
+.calendar-cell.incomplete {
+  background: white;
+  border-color: #e5e7eb;
 }
 
-.calendar-cell-header {
-  margin-bottom: 0.5rem;
-}
-
-.day-label {
-  font-weight: 600;
-  font-size: 0.875rem;
+/* 期限切れ（アーカイブ済み）- クリック可能 */
+.calendar-cell.expired {
+  background: linear-gradient(135deg, #e5e7eb 0%, #f3f4f6 100%);
+  border-color: #9ca3af;
   color: #6b7280;
+  cursor: pointer !important;
+  position: relative;
 }
 
-.calendar-cell.completed .day-label {
-  color: white;
-}
-
-.date-label {
+.calendar-cell.expired::after {
+  content: '📦';
+  position: absolute;
+  top: 2px;
+  right: 2px;
   font-size: 0.75rem;
-  color: #9ca3af;
-  margin-top: 0.25rem;
+  opacity: 0.6;
 }
 
-.calendar-cell.completed .date-label {
-  color: rgba(255, 255, 255, 0.9);
+.calendar-cell.expired:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(156, 163, 175, 0.4);
+  border-color: #6b7280;
 }
 
-.calendar-cell-body {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.calendar-cell.expired.disabled {
+  cursor: pointer !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 
-.card-icon {
-  font-size: 2.5rem;
+/* 抽選週のハイライト */
+.calendar-cell.current-week {
+  background: rgba(139, 92, 246, 0.08) !important;
+  border: 2px dashed rgba(139, 92, 246, 0.4) !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
 }
 
-.calendar-cell-footer {
-  margin-top: 0.5rem;
+/* 抽選週 + 今日 */
+.calendar-cell.current-week.today {
+  background: #fef3c7 !important;
+  border: 2px solid #fbbf24 !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
 }
 
-.affirmation-count {
-  font-size: 0.75rem;
-  color: #6b7280;
+/* 抽選週 + 完了済み */
+.calendar-cell.current-week.completed {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%) !important;
+  border: 2px dashed rgba(139, 92, 246, 0.6) !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
 }
 
-.calendar-cell.completed .affirmation-count {
+/* 抽選週 + 一部完了 */
+.calendar-cell.current-week.partial {
+  background: #fed7aa !important;
+  border: 2px dashed rgba(139, 92, 246, 0.6) !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
+/* 抽選週 + 未完了 */
+.calendar-cell.current-week.incomplete {
+  background: white !important;
+  border: 2px dashed rgba(139, 92, 246, 0.6) !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
+/* セル内のコンテンツ */
+.cell-date {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.cell-icon {
+  font-size: 1.8rem;
+}
+
+/* ホバー効果 */
+.calendar-cell:not(.disabled):hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  border-color: #8b5cf6;
+}
+
+/* 完了セルの文字色 */
+.calendar-cell.completed .cell-date,
+.calendar-cell.completed .cell-icon {
   color: white;
 }
 
@@ -246,21 +397,36 @@
     padding: 1rem;
   }
   
-  /* カレンダー：サイズを小さくして7列維持 */
-  .calendar-container {
-    grid-template-columns: repeat(7, 1fr);
-    gap: 0.25rem;
-  }
+/* カレンダー：サイズを小さくして7列維持 */
+.calendar-grid {
+  padding: 0.5rem;
+  gap: 0.25rem;
+}
 
-  .calendar-cell {
-    padding: 0.25rem;
-    min-height: 70px;
-  }
+.calendar-cell {
+  padding: 0.25rem;
+}
 
-  /* カレンダーのフォントサイズ調整 */
-  .card-icon {
-    font-size: 1.2rem;
-  }
+.calendar-weekdays {
+  padding: 0 0.5rem;
+}
+
+.calendar-header {
+  max-width: 100%;
+}
+
+.month-title {
+  font-size: 1.1rem;
+}
+
+/* カレンダーのフォントサイズ調整 */
+.cell-date {
+  font-size: 1rem;
+}
+
+.cell-icon {
+  font-size: 1.2rem;
+}
 
   .day-label {
     font-size: 0.65rem;
@@ -440,6 +606,46 @@
   justify-content: center;
   z-index: 2000;
   padding: 1rem;
+}
+
+/* 完了モーダルオーバーレイ（週終了サマリー用） */
+.completion-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1rem;
+}
+
+.completion-modal {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideUp 0.3s ease-out;
+  position: relative; /* 追加 */
+}
+
+/* アニメーション */
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .modal-content {
@@ -661,4 +867,52 @@
 
 .share-icon {
   font-size: 1.5rem;
+}
+
+/* 完了メッセージ */
+.completion-message {
+  text-align: center;
+  font-size: 1.125rem;
+  color: #1f2937;
+  font-weight: 600;
+  margin: 1.5rem 0;
+  padding: 0.5rem;
+}
+
+/* ボタンエリア */
+.completion-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* モーダル内のボタン */
+.modal-btn {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modal-btn.primary {
+  background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+  color: white;
+}
+
+.modal-btn.secondary {
+  background: white;
+  color: #8B5CF6;
+  border: 2px solid #8B5CF6;
+}
+
+.modal-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
 }

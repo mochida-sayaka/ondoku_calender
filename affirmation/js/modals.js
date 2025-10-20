@@ -261,8 +261,6 @@ async function showWeekSummary() {
           </div>
         ` : ''}
         
-        <p class="completion-message">素晴らしい1週間でした！</p>
-        
         <div class="completion-buttons">
           <button class="modal-btn secondary" onclick="viewStatsFromSummary()">
             📊 統計を見る

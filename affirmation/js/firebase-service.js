@@ -105,56 +105,54 @@ async function drawWeeklyCards(settings) {
 }
 
 // 週間データを作成
-async function createWeeklyData(affirmations, settings, isRepeating = false) {
-  const weeklyCards = [];
-  const today = new Date();
-  const startDate = new Date(today);
-  startDate.setDate(today.getDate() - today.getDay() + 1); // 月曜日
-  
-  const sentencesPerDay = settings.sentencesPerDay;
-  let affirmationIndex = 0;
-  
-  for (let i = 0; i < 7; i++) {
-    const date = new Date(startDate);
-    date.setDate(startDate.getDate() + i);
-    const dateStr = date.toISOString().split('T')[0];
+    async function createWeeklyData(affirmations, settings, isRepeating = false) {
+    const weeklyCards = [];
+    const today = new Date();
+    const startDate = new Date(today); // 今日から開始
     
-    // この日のアファメーション
-    const dayAffirmations = [];
-    for (let j = 0; j < sentencesPerDay && affirmationIndex < affirmations.length; j++) {
-      dayAffirmations.push(affirmations[affirmationIndex]);
-      affirmationIndex++;
+    const sentencesPerDay = settings.sentencesPerDay;
+    let affirmationIndex = 0;
+    
+    for (let i = 0; i < 7; i++) {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+        const dateStr = window.getLocalDateString(date); 
+        
+        // この日のアファメーション
+        const dayAffirmations = [];
+        for (let j = 0; j < sentencesPerDay && affirmationIndex < affirmations.length; j++) {
+        dayAffirmations.push(affirmations[affirmationIndex]);
+        affirmationIndex++;
+        }
+        
+        weeklyCards.push({
+        date: dateStr,
+        dayOfWeek: date.getDay(),
+        affirmations: dayAffirmations,
+        completed: false
+        });
     }
     
-    weeklyCards.push({
-      date: dateStr,
-      dayOfWeek: i,
-      affirmations: dayAffirmations,
-      completed: false
-    });
-  }
-  
-  const weekRange = window.utils.getWeekRange(startDate);
-  const user = window.getCurrentUser();
-  const weeklyData = {
-    studentName: user.displayName,
-    weekStartDate: weekRange.start,
-    weekEndDate: weekRange.end,
-    settings: settings,
-    weeklyCards: weeklyCards,
-    isRepeating: isRepeating // コンプ後の再抽選フラグ
-  };
-  
-  // Firestoreに保存（ユーザーIDベース）
-  if (user) {
-    await window.saveUserData(user.uid, weeklyData);
-  }
-  
-  window.appState.weeklyData = weeklyData;
-  
-  console.log('✅ カード抽選完了', weeklyData);
-  return weeklyData;
-}
+    const user = window.getCurrentUser();
+    const weeklyData = {
+        studentName: user.displayName,
+        weekStartDate: weeklyCards[0].date,  // 修正: 最初の日付
+        weekEndDate: weeklyCards[6].date,    // 修正: 最後の日付
+        settings: settings,
+        weeklyCards: weeklyCards,
+        isRepeating: isRepeating
+    };
+    
+    // Firestoreに保存（ユーザーIDベース）
+    if (user) {
+        await window.saveUserData(user.uid, weeklyData);
+    }
+    
+    window.appState.weeklyData = weeklyData;
+    
+    console.log('✅ カード抽選完了', weeklyData);
+    return weeklyData;
+    }
 
 // 録音をFirebase Storageにアップロード
 async function uploadRecordingsToFirebase() {

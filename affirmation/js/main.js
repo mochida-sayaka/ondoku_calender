@@ -148,6 +148,9 @@ function setupEventListeners() {
   document.getElementById('drawCardsBtn').addEventListener('click', handleDrawCards);
   
   // カレンダー画面
+  document.getElementById('prevMonthBtn')?.addEventListener('click', window.goToPrevMonth);
+  document.getElementById('nextMonthBtn')?.addEventListener('click', window.goToNextMonth);
+  document.getElementById('todayBtn')?.addEventListener('click', window.goToThisMonth); // ← 追加
   document.getElementById('statsBtn').addEventListener('click', showStatsScreen);
   document.getElementById('settingsBtn').addEventListener('click', () => {
     document.getElementById('settingsModal').style.display = 'flex';
