@@ -105,54 +105,59 @@ async function drawWeeklyCards(settings) {
 }
 
 // 週間データを作成
-    async function createWeeklyData(affirmations, settings, isRepeating = false) {
-    const weeklyCards = [];
-    const today = new Date();
-    const startDate = new Date(today); // 今日から開始
+async function createWeeklyData(affirmations, settings, isRepeating = false) {
+  const weeklyCards = [];
+  const today = new Date();
+  const startDate = new Date(today); // 今日から開始
+  
+  const sentencesPerDay = settings.sentencesPerDay;
+  let affirmationIndex = 0;
+  
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(startDate);
+    date.setDate(startDate.getDate() + i);
+    const dateStr = window.getLocalDateString(date); 
     
-    const sentencesPerDay = settings.sentencesPerDay;
-    let affirmationIndex = 0;
-    
-    for (let i = 0; i < 7; i++) {
-        const date = new Date(startDate);
-        date.setDate(startDate.getDate() + i);
-        const dateStr = window.getLocalDateString(date); 
-        
-        // この日のアファメーション
-        const dayAffirmations = [];
-        for (let j = 0; j < sentencesPerDay && affirmationIndex < affirmations.length; j++) {
-        dayAffirmations.push(affirmations[affirmationIndex]);
-        affirmationIndex++;
-        }
-        
-        weeklyCards.push({
-        date: dateStr,
-        dayOfWeek: date.getDay(),
-        affirmations: dayAffirmations,
-        completed: false
-        });
+    // この日のアファメーション
+    const dayAffirmations = [];
+    for (let j = 0; j < sentencesPerDay && affirmationIndex < affirmations.length; j++) {
+      // 🔧 修正: recorded フィールドを初期化
+      dayAffirmations.push({
+        ...affirmations[affirmationIndex],
+        recorded: false, // 初期値は false
+        recordingUrl: null // 初期値は null
+      });
+      affirmationIndex++;
     }
     
-    const user = window.getCurrentUser();
-    const weeklyData = {
-        studentName: user.displayName,
-        weekStartDate: weeklyCards[0].date,  // 修正: 最初の日付
-        weekEndDate: weeklyCards[6].date,    // 修正: 最後の日付
-        settings: settings,
-        weeklyCards: weeklyCards,
-        isRepeating: isRepeating
-    };
-    
-    // Firestoreに保存（ユーザーIDベース）
-    if (user) {
-        await window.saveUserData(user.uid, weeklyData);
-    }
-    
-    window.appState.weeklyData = weeklyData;
-    
-    console.log('✅ カード抽選完了', weeklyData);
-    return weeklyData;
-    }
+    weeklyCards.push({
+      date: dateStr,
+      dayOfWeek: date.getDay(),
+      affirmations: dayAffirmations,
+      completed: false
+    });
+  }
+  
+  const user = window.getCurrentUser();
+  const weeklyData = {
+    studentName: user.displayName,
+    weekStartDate: weeklyCards[0].date,
+    weekEndDate: weeklyCards[6].date,
+    settings: settings,
+    weeklyCards: weeklyCards,
+    isRepeating: isRepeating
+  };
+  
+  // Firestoreに保存（ユーザーIDベース）
+  if (user) {
+    await window.saveUserData(user.uid, weeklyData);
+  }
+  
+  window.appState.weeklyData = weeklyData;
+  
+  console.log('✅ カード抽選完了', weeklyData);
+  return weeklyData;
+}
 
 // 録音をFirebase Storageにアップロード
 async function uploadRecordingsToFirebase() {
@@ -186,6 +191,10 @@ async function uploadRecordingsToFirebase() {
     // ダウンロードURLを取得
     const audioUrl = await getDownloadURL(storageRef);
     
+    // 🔧 修正: 個別の recorded フラグを保存
+    day.affirmations[i].recorded = true;
+    day.affirmations[i].recordingUrl = audioUrl;
+    
     uploadedFiles.push({
       affirmation: affirmation.text,
       japanese: affirmation.japanese,
@@ -196,8 +205,15 @@ async function uploadRecordingsToFirebase() {
     console.log(`✅ アップロード完了: ${filename}`);
   }
   
-  // 完了状態を更新
-  day.completed = true;
+  // 🔧 修正: 完了状態を判定
+  const totalCount = day.affirmations.length;
+  const completedCount = day.affirmations.filter(a => a.recorded).length;
+  
+  if (completedCount === totalCount) {
+    day.completed = true; // 全部完了
+  } else {
+    day.completed = false; // 一部完了 or 未完了
+  }
   
   // 使用済みIDとしてマーク
   day.affirmations.forEach(aff => {

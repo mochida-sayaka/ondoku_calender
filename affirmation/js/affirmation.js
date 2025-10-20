@@ -26,9 +26,27 @@ function renderAffirmation() {
   // ページネーションを表示
   renderPagination(day.affirmations.length, index);
   
-  // 録音プレーヤーをリセット
-  document.getElementById('recordingPlayer').style.display = 'none';
-  document.getElementById('recordingAudio').src = '';
+  // 🔧 修正: この文の録音があるか確認
+  const recording = window.appState.recordings[index];
+  if (recording) {
+    // 録音済み → プレイヤーを表示
+    const audioUrl = URL.createObjectURL(recording);
+    document.getElementById('recordingAudio').src = audioUrl;
+    document.getElementById('recordingPlayer').style.display = 'block';
+  } else {
+    // 🔧 修正: この文の録音があるか確認
+    const recording = window.appState.recordings[index];
+    if (recording) {
+      // 録音済み → プレイヤーを表示
+      const audioUrl = URL.createObjectURL(recording);
+      document.getElementById('recordingAudio').src = audioUrl;
+      document.getElementById('recordingPlayer').style.display = 'block';
+    } else {
+      // 未録音 → プレイヤーを非表示
+      document.getElementById('recordingPlayer').style.display = 'none';
+      document.getElementById('recordingAudio').src = '';
+    }
+  }
   
   // 録音ボタンをリセット
   const recordBtn = document.getElementById('recordBtn');

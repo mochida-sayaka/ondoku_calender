@@ -526,6 +526,9 @@ async function startRecording() {
       document.getElementById('recordingAudio').src = audioUrl;
       document.getElementById('recordingPlayer').style.display = 'block';
       document.getElementById('completeBtn').style.display = 'block';
+
+       // 🔧 追加: 完了ボタンを更新
+      window.updateCompleteButton();
     };
     
     window.appState.mediaRecorder.start();
